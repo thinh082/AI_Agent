@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PLAN — TASK-XXX: Tiêu đề công việc</title>
+  <!-- Khi AI tạo file mới ở plans/<YYYY-MM-DD>_<TASK_ID>.html thì đổi thành href="_template/plan.css" và src="_template/plan.js" -->
+  <link rel="stylesheet" href="plan.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-top">
+        <h1>PLAN — TASK-XXX: &lt;Tiêu đề ngắn&gt;</h1>
+        <div class="toolbar">
+          <!-- Nếu có bản phác thảo giao diện trong UI_PLAN/, đổi href trỏ đúng file -->
+          <a class="btn-link" href="../../UI_PLAN/_template/ui_mockup.html" target="_blank">🎨 Mở UI_PLAN mẫu</a>
+          <button class="btn" id="btn-expand-all">Mở hết</button>
+          <button class="btn" id="btn-collapse-all">Thu gọn</button>
+        </div>
+      </div>
+      <div class="meta">
+        <span class="badge badge-v3">✓ master3 (v3)</span>
+        <span class="badge badge-v2">✓ master2 (v2)</span>
+        <span class="badge badge-gate">Gate 1: Chờ duyệt</span>
+        <span class="badge">Ngày: YYYY-MM-DD</span>
+        <span class="badge">Nhánh làm trước: master3</span>
+      </div>
+    </div>
+
+    <!-- 1. MỤC TIÊU & PHẠM VI -->
+    <section class="card">
+      <div class="card-header">
+        <h2>1. Mục tiêu &amp; Phạm vi</h2>
+        <span class="toggle-icon">▼ Thu gọn</span>
+      </div>
+      <div class="card-body">
+        <p><strong>Cần làm:</strong> ...</p>
+        <p><strong>KHÔNG làm (out of scope):</strong> ...</p>
+      </div>
+    </section>
+
+    <!-- 2. DANH SÁCH FILE CODE / STO / BẢNG DB SẼ SỬA (NHÌN NHANH) -->
+    <section class="card">
+      <div class="card-header">
+        <h2>2. Danh sách chi tiết sẽ sửa (File Code · STO · Bảng/Cột DB)</h2>
+        <span class="toggle-icon">▼ Thu gọn</span>
+      </div>
+      <div class="card-body">
+        <p><strong>A. File Code (Controller / Service / View / JS):</strong></p>
+        <table>
+          <thead>
+            <tr>
+              <th>File</th>
+              <th>Hành động</th>
+              <th>Hàm / Vị trí sửa</th>
+              <th>v2 / v3</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>Controllers/KSKController.cs</code></td>
+              <td>Sửa</td>
+              <td><code>XuatExcelGuiCong()</code> — bổ sung truyền cột <code>SoLanIn</code></td>
+              <td><span class="badge badge-v3">v3</span> <span class="badge badge-v2">v2</span></td>
+            </tr>
+            <tr>
+              <td><code>Views/KSK/Index.cshtml</code></td>
+              <td>Sửa</td>
+              <td>Thêm cột hiển thị <code>SoLanIn</code> theo <code>UI_PLAN</code></td>
+              <td><span class="badge badge-v3">v3</span> <span class="badge badge-v2">v2</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p style="margin-top: 14px;"><strong>B. Stored Procedure / View / Function:</strong></p>
+        <table>
+          <thead>
+            <tr>
+              <th>Tên STO / View / Function</th>
+              <th>Hành động</th>
+              <th>Nội dung sửa</th>
+              <th>v2 / v3</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>dbo.sp_KSK_GetDanhSachBoLoc_Thai</code></td>
+              <td>Sửa (ALTER)</td>
+              <td>Select thêm cột <code>SoLanIn</code>, giữ nguyên logic lọc riêng của v3</td>
+              <td><span class="badge badge-v3">v3</span> <span class="badge badge-v2">v2</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p style="margin-top: 14px;"><strong>C. Bảng &amp; Cột Database (SQL Server 2017):</strong></p>
+        <table>
+          <thead>
+            <tr>
+              <th>Bảng</th>
+              <th>Cột / Index</th>
+              <th>Thao tác</th>
+              <th>Kiểu dữ liệu / Ghi chú</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>dbo.KSK_KhamSucKhoeDinhKy</code></td>
+              <td><code>SoLanIn</code></td>
+              <td>Thêm cột (<code>ADD</code>)</td>
+              <td><code>INT NULL</code></td>
+            </tr>
+            <tr>
+              <td><code>dbo.KSK_LaiXe</code></td>
+              <td><code>SoLanIn</code></td>
+              <td>Thêm cột (<code>ADD</code>)</td>
+              <td><code>INT NULL</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. CONTEXT & GRAPHIFY -->
+    <section class="card">
+      <div class="card-header">
+        <h2>3. Context &amp; Bản đồ Graphify (Blast Radius)</h2>
+        <span class="toggle-icon">▼ Thu gọn</span>
+      </div>
+      <div class="card-body">
+        <p><strong>Nguồn bản đồ đã tra:</strong> <code>graphify-out/master3/</code> · <code>graphify-out/master2/</code></p>
+        <p><strong>File thật đã mở xác nhận:</strong></p>
+        <ul>
+          <li><code>Controllers/ExampleController.cs</code></li>
+          <li><code>Views/Example/Index.cshtml</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 4. SNAPSHOT SQL & DIFF V2 VS V3 -->
+    <section class="card">
+      <div class="card-header">
+        <h2>4. Bản SQL hiện tại (Snapshot) &amp; Diff v2 vs v3</h2>
+        <span class="toggle-icon">▼ Thu gọn</span>
+      </div>
+      <div class="card-body">
+        <div class="diff-grid">
+          <div>
+            <span class="badge badge-v2">master2 (before_v2.sql)</span>
+            <pre><code>-- Điểm riêng của v2 cần GIỮ NGUYÊN:
+-- ...</code></pre>
+          </div>
+          <div>
+            <span class="badge badge-v3">master3 (before_v3.sql)</span>
+            <pre><code>-- Điểm riêng của v3 cần GIỮ NGUYÊN:
+-- ...</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. BẢNG MAPPING UI <-> API <-> DB & FAIL-FAST -->
+    <section class="card">
+      <div class="card-header">
+        <h2>5. Bảng Mapping UI ↔ API ↔ DB &amp; Quy tắc Fail-Fast</h2>
+        <span class="toggle-icon">▼ Thu gọn</span>
+      </div>
+      <div class="card-body">
+        <table>
+          <thead>
+            <tr>
+              <th>HTML <code>id</code> / <code>name</code></th>
+              <th>API / DTO Field</th>
+              <th>DB Column (<code>Table.Col</code>)</th>
+              <th>Kiểu dữ liệu</th>
+              <th>Ghi chú</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>#SoLanIn</code></td>
+              <td><code>SoLanIn</code></td>
+              <td><code>dbo.KSK_LaiXe.SoLanIn</code></td>
+              <td><code>INT NULL</code></td>
+              <td>Khớp 1-1, cấm fallback</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="alert alert-danger">
+          <strong>Fail-Fast (Luật 4):</strong> Với mọi <code>if / else if / switch</code> mapping mã trạng thái hoặc gửi cổng thông tin: nhánh <code>else / default</code> BẮT BUỘC báo lỗi &amp; chặn gửi, KHÔNG tự gán giá trị mặc định.
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. PHÂN TÍCH ẢNH HƯỞNG -->
+    <section class="card">
+      <div class="card-header">
+        <h2>6. Phân tích ảnh hưởng (Impact Analysis)</h2>
+        <span class="toggle-icon">▼ Thu gọn</span>
+      </div>
+      <div class="card-body">
+        <table>
+          <thead>
+            <tr>
+              <th>File / DB Object</th>
+              <th>v2</th>
+              <th>v3</th>
+              <th>Caller bị ảnh hưởng</th>
+              <th>Rủi ro</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>...</code></td>
+              <td>Có</td>
+              <td>Có</td>
+              <td>...</td>
+              <td>Thấp / Trung bình / Cao</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 7. CÁC BƯỚC THỰC HIỆN -->
+    <section class="card">
+      <div class="card-header">
+        <h2>7. Các bước thực hiện (Coder bám sát 100%)</h2>
+        <span class="toggle-icon">▼ Thu gọn</span>
+      </div>
+      <div class="card-body">
+        <ul class="checklist">
+          <li><input type="checkbox" id="s1" /><label for="s1">Bước 1: ...</label></li>
+          <li><input type="checkbox" id="s2" /><label for="s2">Bước 2: ...</label></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 8. KẾ HOẠCH SCRIPT SQL & ROLLBACK -->
+    <section class="card">
+      <div class="card-header">
+        <h2>8. Kế hoạch Script SQL (SQL Server 2017) &amp; Rollback</h2>
+        <span class="toggle-icon">▼ Thu gọn</span>
+      </div>
+      <div class="card-body">
+        <ol>
+          <li><strong>Table / Column:</strong> <code>01_table_v3.sql</code> / <code>01_table_v2.sql</code> (idempotent <code>IF COL_LENGTH</code>)</li>
+          <li><strong>Index / Constraint:</strong> <em>Không có</em></li>
+          <li><strong>Function / View:</strong> <em>Không có</em></li>
+          <li><strong>Stored Procedure:</strong> <code>04_deploy_v3.sql</code> / <code>04_deploy_v2.sql</code> (tách riêng trên nền <code>before_*</code>)</li>
+          <li><strong>Seed / Config Data:</strong> <em>Không có</em></li>
+        </ol>
+        <p><strong>Rollback:</strong> Chạy lại <code>snapshots/before_v3.sql</code> / <code>snapshots/before_v2.sql</code>.</p>
+      </div>
+    </section>
+
+    <!-- 9. TEST PLAN -->
+    <section class="card">
+      <div class="card-header">
+        <h2>9. Test Plan (Orca Browser qua <code>orca</code> CLI)</h2>
+        <span class="toggle-icon">▼ Thu gọn</span>
+      </div>
+      <div class="card-body">
+        <ul>
+          <li><strong>Happy path:</strong> ...</li>
+          <li><strong>Case biên &amp; Fail-Fast:</strong> ...</li>
+          <li><strong>Regression v2 / v3:</strong> ...</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 10. CÂU HỎI MỞ -->
+    <section class="card">
+      <div class="card-header">
+        <h2>10. Câu hỏi mở cần duyệt trước khi Code (Gate 1)</h2>
+        <span class="toggle-icon">▼ Thu gọn</span>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-warn">
+          Không có câu hỏi mở — sẵn sàng duyệt Gate 1. <em>(Hoặc liệt kê các điểm cần xác nhận tại đây)</em>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script src="plan.js"></script>
+</body>
+</html>
