@@ -77,6 +77,7 @@ Bộ khung này được thiết kế cho dự án **> 500 file mỗi version**,
 - **Task sửa bug:** chạy trước *"Dùng skill `diagnose-bug` cho bug `<TASK_ID>`: `<mô tả>`"* → AI tái hiện trên Orca, tìm nguyên nhân gốc, ghi `BUG_REPORT.md` → rồi mới lên plan.
 - Gọi skill `plan-task`:
   > *"Dùng skill `plan-task`: Lên plan `<TASK_ID>` `-s|-m|-l` `[-v2|-v3]`: `<mô tả>`. Snapshot SQL ở `tasks/.../snapshots/`."*
+  - Coder là model nhanh / yếu → thêm `+super` (vd `Lên plan HIS-1240 -m +super: ...`): Planner viết sẵn bản vá cho từng bước, Coder chỉ tìm và thay.
   - Ví dụ: `Lên plan HIS-1234 -s -v3: sửa chức năng A, B ở màn Tiếp nhận` · `Lên plan HIS-1240 -m: bổ sung chức năng xuất Excel thu tiền` (không ghi version = cả v2+v3).
   - Tiêu chí: `-s` sửa thẳng chức năng đã có · `-m`/`-l` cụm nhiều chức năng tùy quy mô — xem `AGENTS.md` mục 8.
 - **Gate 1:** Bạn đọc & duyệt `PLAN.md` (đặc biệt check mục **Diff v2 vs v3** và **Bảng Mapping UI↔DB**), rồi gõ *"duyệt"* → Planner hỏi Coder dùng AI nào (vd `codex`) → tự mở phiên chat mới cho Coder qua `orca agent launch`.

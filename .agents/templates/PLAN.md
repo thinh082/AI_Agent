@@ -6,6 +6,7 @@
 - **Trạng thái Gate 1:** `[ ] Chờ duyệt` / `[ ] Đã duyệt`
 - **Kích cỡ:** `-s` / `-m` / `-l` *(do người dùng gắn)*
 - **Chuông báo:** `Không` / `Có: <dấu hiệu> → Giữ -s` / `Có: <dấu hiệu> → Nâng -m`
+- **Super plan:** `Có` (`+super` — mọi bước dạng bản vá) / `Từng bước` (chỉ các bước đánh dấu `[super]`) / `Không`
 - **Loại task:** `STO` / `UI` / `API` / `Báo cáo` / `Cổng/Đối tác` / `Khác`
 - **Revision kho kiến thức:** `<commit ngắn của repo AI_Agent>` *(thêm `+ chưa commit` nếu có)*
 - **Model/CLI Planner (tùy chọn):** ...
@@ -73,6 +74,24 @@
 |---|---|---|---|
 | 1 | ... | `P001` | — |
 | 2 | ... | — | *Cách làm:* ... · *Kiểm chứng:* ... |
+| 3 | `[super]` ... | — | Xem bản vá chi tiết bên dưới |
+
+**Bản vá chi tiết cho các bước `[super]`** *(định dạng ở `plan-task` Bước 0 ý 6)*:
+
+````markdown
+### Bước N [super] — <Class.Method / tên STO> (<v3|v2>)
+- **File:** `<đường dẫn>`
+- **Tìm đoạn (copy NGUYÊN VĂN từ file thật, đủ dài để chỉ khớp đúng 1 chỗ):**
+  ```csharp
+  <đoạn code hiện tại>
+  ```
+- **Thay bằng / Thêm ngay sau / Thêm ngay trước:**
+  ```csharp
+  <đoạn code mới hoàn chỉnh — đã áp mẫu P/X, đúng tên GLOSSARY / mapping>
+  ```
+- **Không đụng:** <logic riêng version / code đồng nghiệp gần đó>
+- **Không tìm thấy đoạn trên (hoặc khớp > 1 chỗ) → DỪNG báo người dùng.**
+````
 
 > Bước chưa có mẫu: Coder được tự chọn *cách code* nhưng **không được sửa ngoài file/hàm của plan** (Luật 1); làm khác dự kiến thì ghi `CODER_NOTES.md`.
 

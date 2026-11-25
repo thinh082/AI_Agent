@@ -27,7 +27,7 @@ Người dùng nói *"chấm task / retro ..."* → **Chế độ A**. Người 
 
 ### Bước 1 — Tự thu thập (đọc, không hỏi)
 Từ `tasks/<YYYY-MM-DD>_<TASK_ID>/`:
-- `PLAN.md`: TASK_ID, kích cỡ, chuông báo, version áp dụng, loại task, các mã `P/X/D` ở mục **Kiến thức áp dụng**, model Planner (nếu có ghi).
+- `PLAN.md`: TASK_ID, kích cỡ, chuông báo, super plan, version áp dụng, loại task, các mã `P/X/D` ở mục **Kiến thức áp dụng**, model Planner (nếu có ghi).
 - `CODER_NOTES.md` (nếu có): các bước ngoài khuôn / lệch plan.
 - `TEST_REPORT.md` (của từng nhánh): kết luận PASS/FAIL, lỗi đã gặp, model Tester (nếu có ghi).
 
@@ -76,6 +76,7 @@ Không có bài học mới → **không tạo nháp**.
    - **Planner:** điểm TB theo `model Planner` + số lần `Khâu lỗi = Plan`.
    - **Tester:** theo `model Tester` — số lần **Tester PASS nhưng điểm ≤ 2** (để lọt lỗi); tách 2 nhóm **Tester cùng model Coder** vs **khác model Coder**.
    - Phân bố `Nguyên nhân` và `Khâu lỗi` toàn dự án; điểm TB theo `Loại task` và theo `Kích cỡ`.
+   - **Super plan:** điểm TB theo `model Coder × Super plan (Có / Từng bước / Không)` → model nhanh + super có theo kịp model mạnh + plan thường không; số lần Coder DỪNG vì không tìm thấy đoạn gốc.
    - **Tiêu chí kích cỡ:** điểm TB của nhóm `Giữ -s` so với `-s` không chuông báo và `Nâng -m` → biết tiêu chí của người dùng hay chuông báo chuẩn hơn.
    - Mục kho: điểm TB của các task có dùng từng mã `P/X/D`; mục có `Ngày kiểm chứng` quá 90 ngày.
 3. Kết luận theo quy tắc (chỉ kết luận khi mỗi nhóm so sánh có **≥ 3 task**, nếu không ghi *"chưa đủ dữ liệu"*):

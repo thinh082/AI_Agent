@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<title>Hướng dẫn sử dụng Quy trình AI Agent (master2 / master3)</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm 16mm 14mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1f2937; margin: 0; }
+  h1 { font-size: 26pt; margin: 0 0 6px; color: #0f172a; }
+  h2 { font-size: 16pt; color: #0f3d91; border-bottom: 2px solid #0f3d91; padding-bottom: 4px; margin: 0 0 12px; page-break-before: always; }
+  h2.first { page-break-before: auto; }
+  h3 { font-size: 12.5pt; color: #0f172a; margin: 16px 0 6px; }
+  h4 { font-size: 11pt; margin: 12px 0 4px; color: #334155; }
+  p { margin: 4px 0 8px; }
+  ul, ol { margin: 4px 0 8px; padding-left: 20px; }
+  li { margin: 2px 0; }
+  code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 9.5pt; background: #eef2f7; padding: 1px 4px; border-radius: 3px; }
+  pre { font-family: Consolas, "Cascadia Mono", monospace; font-size: 9pt; background: #0f172a; color: #e2e8f0; padding: 8px 10px; border-radius: 6px; white-space: pre-wrap; word-break: break-word; margin: 6px 0 10px; page-break-inside: avoid; }
+  pre code { background: none; color: inherit; padding: 0; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 12px; font-size: 9.5pt; page-break-inside: auto; }
+  th, td { border: 1px solid #cbd5e1; padding: 5px 7px; vertical-align: top; text-align: left; }
+  th { background: #e8eefb; color: #0f172a; }
+  tr { page-break-inside: avoid; }
+  .cover { height: 250mm; display: flex; flex-direction: column; justify-content: center; }
+  .cover .sub { font-size: 13pt; color: #475569; margin-bottom: 24px; }
+  .cover .meta { font-size: 10pt; color: #64748b; }
+  .box { border-left: 4px solid #0f3d91; background: #f1f5fd; padding: 8px 12px; margin: 8px 0 12px; border-radius: 0 6px 6px 0; page-break-inside: avoid; }
+  .warn { border-left-color: #b45309; background: #fff7ed; }
+  .ok { border-left-color: #15803d; background: #f0fdf4; }
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 10px 0 14px; }
+  .flow .n { border: 1.5px solid #0f3d91; border-radius: 6px; padding: 5px 8px; font-size: 9pt; background: #fff; text-align: center; }
+  .flow .g { border-color: #b45309; background: #fff7ed; font-weight: 600; }
+  .flow .h { border-color: #15803d; background: #f0fdf4; }
+  .flow .a { color: #64748b; font-size: 11pt; }
+  .step { border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; margin: 10px 0; page-break-inside: avoid; }
+  .step .t { font-weight: 700; color: #0f3d91; margin-bottom: 4px; }
+  .tag { display: inline-block; font-size: 8.5pt; padding: 0 6px; border-radius: 10px; margin-right: 4px; }
+  .you { background: #fde68a; color: #78350f; }
+  .ai { background: #bfdbfe; color: #1e3a8a; }
+  .toc ol { columns: 2; column-gap: 24px; }
+  .small { font-size: 9pt; color: #475569; }
+</style>
+</head>
+<body>
+
+<!-- ===================== BÌA ===================== -->
+<div class="cover">
+  <h1>Hướng dẫn sử dụng<br/>Quy trình AI Agent</h1>
+  <div class="sub">Dự án song song <b>master2</b> / <b>master3</b> · ASP.NET Core 7 + SQL Server 2017<br/>Planner → Coder → Tester → Porter · Kho kiến thức tự học</div>
+  <div class="meta">
+    Repo quy trình: <code>https://github.com/thinh082/AI_Agent</code><br/>
+    Cập nhật: 2026-11-25 · Luật gốc: <code>AGENTS.md</code> (file này chỉ là hướng dẫn dùng — nếu lệch nhau, <code>AGENTS.md</code> và các <code>SKILL.md</code> là đúng)
+  </div>
+  <div class="toc" style="margin-top:28px">
+    <b>Mục lục</b>
+    <ol>
+      <li>Tổng quan 1 trang</li>
+      <li>Cài đặt lần đầu</li>
+      <li>Danh sách skill &amp; prompt mẫu</li>
+      <li>Cú pháp lên plan: kích cỡ, version, super plan</li>
+      <li>Luồng 1 task chuẩn (-m) từng bước</li>
+      <li>Task nhỏ (-s) và task lớn (-l)</li>
+      <li>Task sửa bug</li>
+      <li>Tra cứu nhanh &amp; tiện ích</li>
+      <li>Tự học: nạp kiến thức &amp; chấm điểm</li>
+      <li>Chọn model cho từng vai trò</li>
+      <li>Luật bắt buộc &amp; việc AI không bao giờ làm</li>
+      <li>File sinh ra trong 1 task</li>
+      <li>Xử lý sự cố / Câu hỏi thường gặp</li>
+      <li>Thẻ tra nhanh (cheat sheet)</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ===================== 1. TỔNG QUAN ===================== -->
+<h2>1. Tổng quan 1 trang</h2>
+<p>Mỗi task đi qua <b>4 vai trò AI chạy ở 4 phiên riêng</b> và <b>2 cổng duyệt của bạn</b>. Không có phiên AI nào vừa tự nghĩ, vừa tự code, vừa tự test.</p>
+<div class="flow">
+  <span class="n">Bạn: snapshot sto<br/>+ tạo nhánh</span><span class="a">→</span>
+  <span class="n">Planner<br/><span class="small">plan-task</span></span><span class="a">→</span>
+  <span class="n g">Gate 1<br/>bạn "duyệt"</span><span class="a">→</span>
+  <span class="n">Coder<br/><span class="small">implement-plan</span></span><span class="a">→</span>
+  <span class="n">Bạn chạy SQL<br/>trên Dev</span><span class="a">→</span>
+  <span class="n">Tester<br/><span class="small">verify-task</span></span><span class="a">→</span>
+  <span class="n g">Gate 2<br/>bạn commit/push</span><span class="a">→</span>
+  <span class="n">Porter v2<br/><span class="small">port-version</span></span><span class="a">→</span>
+  <span class="n">Tester v2</span><span class="a">→</span>
+  <span class="n h">retro-task<br/>chấm 1–5</span>
+</div>
+<table>
+  <tr><th style="width:16%">Vai trò</th><th style="width:22%">Skill</th><th>Làm gì</th><th style="width:22%">Quyền</th></tr>
+  <tr><td><b>Planner</b></td><td><code>plan-task</code></td><td>Đọc code thật, so sto v2/v3, lập bảng mapping UI↔DB, gắn mẫu kiến thức, viết <code>PLAN.md</code>. Bạn gõ "duyệt" → tự mở phiên Coder.</td><td>Chỉ đọc (+ ghi plan)</td></tr>
+  <tr><td><b>Coder</b></td><td><code>implement-plan</code> + <code>aspnet-backend</code></td><td>Sửa đúng chỗ trong plan, sinh script SQL tách v2/v3, nháp <code>DEPLOY_CHECKLIST.md</code>.</td><td>Ghi code theo plan</td></tr>
+  <tr><td><b>Tester</b></td><td><code>verify-task</code></td><td>Soi 100% dòng bị xóa, quét 6 luật, đối chiếu diff ↔ SQL, test trên Orca browser, ghi <code>TEST_REPORT.md</code> + Notion.</td><td>Đọc + test, không sửa code</td></tr>
+  <tr><td><b>Porter</b></td><td><code>port-version</code></td><td>Mang commit v3 sang nhánh v2 (hoặc ngược lại) mà không đè logic riêng của nhánh đích.</td><td>Ghi code nhánh đích</td></tr>
+</table>
+<div class="box"><b>3 ý quan trọng nhất:</b>
+<ol>
+  <li><b>Bạn tạo nhánh, bạn commit, bạn push.</b> AI chỉ kiểm tra nhánh đúng gốc và không bao giờ <code>git push</code> trên dự án.</li>
+  <li><b>AI không chạy SQL ghi.</b> Bạn tự chạy script trên DB Dev để test, rồi tự chạy trên Prod.</li>
+  <li><b>Kích cỡ task (-s/-m/-l) chỉ quyết định lượng giấy tờ</b>, không nới bất kỳ luật an toàn nào.</li>
+</ol></div>
+
+<!-- ===================== 2. CÀI ĐẶT ===================== -->
+<h2>2. Cài đặt lần đầu (mỗi máy làm 1 lần)</h2>
+<div class="step"><div class="t">Bước 1 — Lấy repo quy trình</div>
+<pre><code>git clone https://github.com/thinh082/AI_Agent.git E:\Project\AI_Agent</code></pre>
+<p class="small">Để ở đường dẫn khác cũng được: <code>setup.ps1</code> sẽ tự sửa <code>KNOWLEDGE_ROOT</code> theo vị trí thật.</p></div>
+
+<div class="step"><div class="t">Bước 2 — Nối quy trình vào dự án HIS bằng 1 lệnh</div>
+<pre><code>cd E:\Project\AI_Agent
+powershell -ExecutionPolicy Bypass -File .\setup.ps1 -HisPath D:\Code\HIS</code></pre>
+<ul>
+  <li>Tạo <b>junction</b> <code>.agents\skills</code>, <code>.agents\templates</code>, <code>plans\_template</code>, <code>UI_PLAN\_template</code> trong HIS trỏ về <code>AI_Agent</code> → sửa skill ở <code>AI_Agent</code> là HIS dùng ngay.</li>
+  <li>Copy <code>AGENTS.md</code> vào HIS (có sao lưu nếu đã có bản khác), tự điền đường dẫn kho kiến thức.</li>
+  <li>Thêm <code>AGENTS.md</code>, <code>.agents/</code>, <code>plans/</code>, <code>UI_PLAN/</code>, <code>tasks/</code>, <code>graphify-out/</code> vào <code>.git/info/exclude</code> → không lẫn vào git công ty.</li>
+  <li>Sửa luật trong <code>AGENTS.md</code> xong → chạy lại với <code>-Update</code>.</li>
+</ul></div>
+
+<div class="step"><div class="t">Bước 3 — Kiểm tra CLI đã thấy skill</div>
+<p>Mở <b>phiên mới</b> (skill chỉ nạp lúc mở phiên) trong thư mục HIS:</p>
+<table>
+  <tr><th>CLI</th><th>Xem danh sách skill</th><th>Gọi skill</th></tr>
+  <tr><td>Codex</td><td><code>/skills</code></td><td><code>$plan-task ...</code></td></tr>
+  <tr><td>Antigravity (agy)</td><td>gõ <code>/</code></td><td><code>/plan-task ...</code></td></tr>
+  <tr><td>Devin</td><td>—</td><td>"Dùng skill <code>plan-task</code> ..."</td></tr>
+</table>
+<p class="small">Cách chắc ăn ở mọi CLI: viết thẳng <b>"Dùng skill &lt;tên&gt;: ..."</b>. Không đặt tên skill là <code>learn</code> (trùng lệnh có sẵn <code>/learn</code> của Antigravity).</p></div>
+
+<div class="step"><div class="t">Bước 4 — Bản đồ dự án (Graphify) cho cả 2 version</div>
+<pre><code>uv tool install graphifyy
+graphify install</code></pre>
+<p>Checkout nhánh v3 → mở phiên AI → <b>"Dùng skill <code>map-project</code>"</b>. Làm lại với nhánh v2. Sau mỗi lần <code>git pull</code> lớn, chạy lại để cập nhật.</p></div>
+
+<div class="step"><div class="t">Bước 5 — Khởi tạo thuật ngữ chung (GLOSSARY)</div>
+<pre><code>Dùng skill add-knowledge khởi tạo glossary</code></pre>
+<p>AI đọc menu, nhãn form, DTO, entity → soạn nháp 30–50 thuật ngữ (UI id ↔ DTO ↔ cột DB v2/v3). Bạn trả lời <code>duyệt hết</code> / <code>bỏ dòng ...</code> / <code>sửa dòng ...</code>.</p></div>
+
+<div class="step"><div class="t">Bước 6 — (Tùy chọn) Notion MCP</div>
+<p>Tạo database <b>Release DB Scripts</b> với các cột: <code>Task</code> (Title), <code>Version</code> (Multi-select v2/v3), <code>Trạng thái</code> (Select), <code>Loại SQL</code> (Multi-select), <code>Commit</code> (Text), <code>Ngày</code> (Date), <code>Chi tiết SQL</code> (Text). Bật MCP server <code>notion</code> trong CLI dùng làm Tester. Không bật được → Tester nhắc bạn copy <code>DEPLOY_CHECKLIST.md</code> thủ công.</p></div>
+
+<!-- ===================== 3. SKILL ===================== -->
+<h2>3. Danh sách skill &amp; prompt mẫu</h2>
+<table>
+  <tr><th style="width:17%">Skill</th><th style="width:25%">Khi nào dùng</th><th>Prompt mẫu</th></tr>
+  <tr><td><code>plan-task</code></td><td>Mỗi task, phiên Planner</td><td><code>Dùng skill plan-task: Lên plan HIS-1240 -m: thêm lọc hình thức TT + xuất Excel màn Thu tiền. Snapshot ở tasks/2026-11-25_HIS-1240/snapshots/</code></td></tr>
+  <tr><td><code>implement-plan</code></td><td>Coder (thường được Planner mở sẵn)</td><td><code>Dùng skill implement-plan thực hiện đúng tasks/2026-11-25_HIS-1240/PLAN.md cho v3 trên nhánh Thinh_Ksk_M3</code></td></tr>
+  <tr><td><code>verify-task</code></td><td>Sau khi Coder xong &amp; đã chạy SQL Dev</td><td><code>Dùng skill verify-task kiểm duyệt tasks/2026-11-25_HIS-1240/PLAN.md và git diff hiện tại</code></td></tr>
+  <tr><td><code>port-version</code></td><td>Sau Gate 2 nhánh đầu</td><td><code>Dùng skill port-version chuyển commit &lt;commit_id&gt; sang nhánh hiện tại theo tasks/2026-11-25_HIS-1240/PLAN.md</code></td></tr>
+  <tr><td><code>diagnose-bug</code></td><td>Task sửa bug, trước Planner</td><td><code>Dùng skill diagnose-bug cho bug HIS-1300 (v3): màn Thu tiền lọc "Chuyển khoản" vẫn ra phiếu tiền mặt</code></td></tr>
+  <tr><td><code>ask-map</code></td><td>Bất cứ lúc nào, hỏi nhanh</td><td><code>/ask-map endpoint /ThuTien/GetDanhSach gọi sto nào?</code><br/><code>/ask-map sto sp_ThuTien_DanhSach được gọi ở đâu (v2)?</code></td></tr>
+  <tr><td><code>wait-what</code></td><td>AI trả lời khó hiểu / dài dòng</td><td><code>/wait-what</code></td></tr>
+  <tr><td><code>add-knowledge</code></td><td>Nạp kiến thức, thuật ngữ, kịch bản E2E; duyệt nháp</td><td><code>Dùng skill add-knowledge ghi lại: sto phân trang bên v3 dùng OFFSET/FETCH, v2 dùng ROW_NUMBER, xem ThuTienServices.GetListAsync</code><br/><code>Dùng skill add-knowledge duyệt kho nháp</code></td></tr>
+  <tr><td><code>retro-task</code></td><td>Sau Gate 2 nhánh cuối; định kỳ tổng kết</td><td><code>Dùng skill retro-task chấm task HIS-1240</code> → gõ <code>4</code><br/><code>Dùng skill retro-task tổng kết</code></td></tr>
+  <tr><td><code>map-project</code></td><td>Lần đầu &amp; sau git pull lớn</td><td><code>Dùng skill map-project</code></td></tr>
+  <tr><td><code>aspnet-backend</code></td><td>Tự động đi kèm Coder / Porter</td><td>(không cần gọi riêng)</td></tr>
+</table>
+
+<!-- ===================== 4. CÚ PHÁP ===================== -->
+<h2>4. Cú pháp lên plan: kích cỡ, version, super plan</h2>
+<pre><code>Lên plan &lt;TASK_ID&gt; [-s|-m|-l] [-v2|-v3] [+super]: &lt;mô tả&gt;</code></pre>
+<table>
+  <tr><th style="width:14%">Cờ</th><th>Ý nghĩa</th></tr>
+  <tr><td><code>-s</code></td><td><b>Nhỏ</b>: sửa thẳng 1 vài chức năng <b>đã có</b> ("sửa A, sửa B"). Plan rút gọn, không HTML, Tester soi diff + test nhanh.</td></tr>
+  <tr><td><code>-m</code></td><td><b>Vừa</b>: cụm nhiều chức năng / chức năng mới trong 1 module/màn hình. Plan đầy đủ, Tester đủ 5 cổng.</td></tr>
+  <tr><td><code>-l</code></td><td><b>Lớn</b>: nhiều module/màn hình, luồng liên hoàn, tích hợp ngoài. Plan chia giai đoạn, có HTML, Tester bắt buộc khác model Coder.</td></tr>
+  <tr><td><code>-v2</code> / <code>-v3</code></td><td>Chỉ làm 1 version. <b>Không ghi = làm cả v2 + v3.</b></td></tr>
+  <tr><td><code>+super</code></td><td>Planner viết sẵn <b>bản vá</b> (đoạn code gốc + đoạn code mới) cho mọi bước → Coder chỉ tìm và thay. Dùng khi Coder là model nhanh/yếu.</td></tr>
+</table>
+<p><b>Cờ kích cỡ do bạn quyết định.</b> Quên gắn → Planner đề xuất 1 mức và hỏi. Planner không bao giờ tự đổi cờ.</p>
+
+<h3>Chuông báo (chỉ với -s)</h3>
+<p>Task gắn <code>-s</code> mà có 1 trong các dấu hiệu dưới → Planner <b>dừng hỏi</b>: giữ <code>-s</code> (chỉ thêm phần an toàn bắt buộc) hay nâng <code>-m</code>.</p>
+<ol>
+  <li>Đụng STO / View / Function / bảng / cột (giữ <code>-s</code> vẫn bắt buộc snapshot v2/v3 + script tách riêng).</li>
+  <li>Đụng tiền, BHYT, cổng thông tin, API đối tác.</li>
+  <li>Phải xóa code / logic có sẵn.</li>
+  <li>Sửa &gt; 3 file, hoặc v2 và v3 khác nhau đúng chỗ cần sửa.</li>
+</ol>
+
+<h3>Khi nào dùng super plan</h3>
+<table>
+  <tr><th>Coder</th><th>Task</th><th>Dùng</th></tr>
+  <tr><td>Mạnh (chậm cũng được)</td><td>Bình thường</td><td>Plan thường (không cờ)</td></tr>
+  <tr><td>Yếu / nhanh (vd SWE 2 flash)</td><td>Bất kỳ</td><td><code>+super</code></td></tr>
+  <tr><td>Mạnh</td><td>Có bước rủi ro cao</td><td>Plan thường — Planner <b>tự đánh dấu <code>[super]</code></b> cho bước sửa sto, map mã gửi cổng/đối tác, logic tiền</td></tr>
+</table>
+<div class="box warn">Super plan làm Planner chậm hơn và plan dài hơn. Coder mạnh + <code>+super</code> <b>không tốt hơn bao nhiêu</b> mà còn bị trói tay. Dùng super plan thì <b>Tester bắt buộc khác model Coder</b>.</div>
+
+<h3>Ví dụ</h3>
+<pre><code>Lên plan HIS-1234 -s -v3: sửa chức năng A, B ở màn Tiếp nhận
+Lên plan HIS-1240 -m: bổ sung chức năng xuất Excel danh sách thu tiền
+Lên plan HIS-1240 -m +super: bổ sung chức năng xuất Excel danh sách thu tiền
+Lên plan HIS-1250 -l -v2: tích hợp cổng BHYT mới</code></pre>
+
+<!-- ===================== 5. LUỒNG -m ===================== -->
+<h2>5. Luồng 1 task chuẩn (-m) từng bước</h2>
+<p class="small">Ví dụ minh họa (tên file / sto / cột là giả định): <b>HIS-1240 -m</b> — màn Thu tiền thêm lọc "Hình thức thanh toán" + nút "Xuất Excel", cả v2 + v3, có sửa sto <code>sp_ThuTien_DanhSach</code>.</p>
+
+<div class="step"><div class="t"><span class="tag you">BẠN</span> Bước 0 — Chuẩn bị</div>
+<ol>
+  <li>Trên SSMS (DB <b>Production</b>), Script sto cần sửa → lưu:
+<pre><code>tasks/2026-11-25_HIS-1240/snapshots/before_v3.sql
+tasks/2026-11-25_HIS-1240/snapshots/before_v2.sql</code></pre>
+  Sto mới chưa tồn tại → không cần snapshot.</li>
+  <li><code>git pull</code> rồi tạo sẵn 2 nhánh: <code>Thinh_Ksk_M3</code> (từ <code>master3</code>) và <code>Thinh_Ksk_M2</code> (từ <code>master2</code>). Checkout nhánh làm trước (thường M3) trong Orca.</li>
+</ol></div>
+
+<div class="step"><div class="t"><span class="tag ai">AI</span> Bước 1 — Planner (phiên cố định)</div>
+<pre><code>Dùng skill plan-task: Lên plan HIS-1240 -m: thêm lọc hình thức TT + xuất Excel màn Thu tiền. Snapshot ở tasks/2026-11-25_HIS-1240/snapshots/</code></pre>
+<p>Planner sẽ: đọc cờ → kiểm tra đủ snapshot → tra Graphify + mở file thật → so <code>before_v2</code> vs <code>before_v3</code> (chỉ ra logic riêng từng bản để không bị xóa) → đọc <code>GLOSSARY.md</code> + <code>INDEX.md</code>, gắn mẫu <code>P/X/D</code> cho từng bước → lập bảng mapping → gắn kịch bản E2E liên quan → viết <code>tasks/.../PLAN.md</code>.</p>
+<p><b>Planner sẽ dừng hỏi khi</b>: lệch tên (vd DTO <code>PaymentType</code> ≠ DB <code>HinhThucThanhToan</code>), thuật ngữ lệch glossary, thiếu snapshot, có câu hỏi mở.</p></div>
+
+<div class="step"><div class="t"><span class="tag you">BẠN</span> Gate 1 — Duyệt plan → AI tự mở phiên Coder</div>
+<p>Đọc kỹ mục <b>Diff v2/v3</b>, <b>Bảng mapping</b>, <b>Các bước</b>. Ổn thì gõ:</p>
+<pre><code>duyệt</code></pre>
+<p>Planner hỏi: <i>"Coder dùng AI nào? (có sẵn: codex, antigravity, devin)"</i> → bạn trả lời, vd <code>codex</code> (kèm model/effort nếu muốn). Planner ghi <code>Gate 1: Đã duyệt</code> rồi chạy:</p>
+<pre><code>orca agent launch --agent codex --worktree branch:Thinh_Ksk_M3 --prompt "Dùng skill implement-plan thực hiện đúng tasks/.../PLAN.md cho v3 trên nhánh Thinh_Ksk_M3." --json</code></pre>
+<p class="small">Không thấy AI bạn chọn / lệnh lỗi → Planner báo, liệt kê agent đang có và in sẵn prompt để bạn tự mở phiên.</p></div>
+
+<div class="step"><div class="t"><span class="tag ai">AI</span> Bước 2 — Coder</div>
+<ul>
+  <li>Kiểm tra nhánh: không phải <code>master2/3</code>, đúng gốc <code>master3</code>, khớp version trong plan, hậu tố <code>_M3</code>. Sai → dừng báo.</li>
+  <li>Sửa đúng các file/hàm trong plan (patch-only), làm theo mẫu đã gắn. Bước chưa có mẫu → tự chọn cách code nhưng ghi <code>CODER_NOTES.md</code>.</li>
+  <li>Sinh script theo thứ tự: <code>01_table</code> → <code>02_index</code> → <code>03_func_view</code> → <code>04_deploy_v3/v2</code> → <code>05_seed</code> (+ <code>99_rollback</code>), nháp <code>DEPLOY_CHECKLIST.md</code>.</li>
+  <li>Không build, không chạy SQL. Báo bạn xem <code>dotnet watch run</code> và danh sách script cần chạy trên Dev.</li>
+</ul></div>
+
+<div class="step"><div class="t"><span class="tag you">BẠN</span> Kiểm tra build &amp; chạy SQL trên Dev</div>
+<p>Xem terminal <code>dotnet watch run</code>: đỏ → dán lỗi cho Coder sửa. Chạy script <code>01 → 05</code> (bản v3) trên <b>DB Dev/Test</b>.</p></div>
+
+<div class="step"><div class="t"><span class="tag ai">AI</span> Bước 3 — Tester (phiên mới, nên khác model Coder)</div>
+<pre><code>Dùng skill verify-task kiểm duyệt tasks/2026-11-25_HIS-1240/PLAN.md và git diff hiện tại</code></pre>
+<p>Tester hỏi "đã chạy xong script trên Dev chưa?" → bạn tự đăng nhập tab Orca bằng tài khoản test → Tester chạy 5 cổng:</p>
+<table>
+  <tr><th style="width:28%">Cổng</th><th>Kiểm tra</th></tr>
+  <tr><td>1. Dòng bị xóa</td><td>100% dòng <code>-</code> phải có trong plan. Xóa ngoài plan → FAIL.</td></tr>
+  <tr><td>2. 6 luật + kiến thức</td><td>Không fallback <code>??</code>, else/default phải báo lỗi, đúng mapping, đúng mẫu <code>P/X</code>, bước <code>[super]</code> khớp bản vá.</td></tr>
+  <tr><td>3. Diff ↔ SQL</td><td>Code dùng cột/sto mới nào thì phải có script tương ứng; <code>04_deploy</code> giữ nguyên logic riêng v2/v3.</td></tr>
+  <tr><td>4. Test Orca</td><td>Kịch bản E2E dùng lại + case mới + case sai (Fail-Fast).</td></tr>
+  <tr><td>5. Báo cáo</td><td><code>TEST_REPORT.md</code> PASS/FAIL + tạo dòng Notion (Commit: <i>Chưa commit</i>).</td></tr>
+</table>
+<p>FAIL → quay lại phiên Coder sửa → chạy lại Tester.</p></div>
+
+<div class="step"><div class="t"><span class="tag you">BẠN</span> Gate 2 — Duyệt &amp; commit</div>
+<p>Xem <code>TEST_REPORT.md</code> + <code>DEPLOY_CHECKLIST.md</code> + <code>git diff</code> → <b>tự</b> commit &amp; push nhánh M3 → gõ vào phiên Tester:</p>
+<pre><code>đã commit</code></pre>
+<p>Tester đọc commit và cập nhật cột <code>Commit</code> trên Notion.</p></div>
+
+<div class="step"><div class="t"><span class="tag ai">AI</span> Bước 4 — Port sang v2</div>
+<p>Checkout <code>Thinh_Ksk_M2</code> → mở phiên mới:</p>
+<pre><code>Dùng skill port-version chuyển commit &lt;commit_id&gt; sang nhánh hiện tại theo tasks/2026-11-25_HIS-1240/PLAN.md</code></pre>
+<p>Porter kiểm tra dependency trên v2 (vd v2 chưa có thư viện X → dừng hỏi bạn), áp thay đổi giữ nguyên logic riêng v2, dùng <code>04_deploy_v2.sql</code>. Sau đó chạy lại <b>Tester trên nhánh M2</b> → bạn commit/push → "đã commit".</p>
+<div class="box ok">Phần việc của AI dừng ở đây: test đủ + Notion ghi đủ (sửa sto nào, thêm cột nào, commit). Lên Production là việc của bạn (nhớ <b>Pre-Deploy Check</b>: xuất lại sto trên Prod so với <code>before_*.sql</code>, khác thì dừng; chạy SQL xong mới deploy code).</div></div>
+
+<div class="step"><div class="t"><span class="tag you">BẠN</span> Bước 5 — Chấm điểm (khuyến khích)</div>
+<pre><code>Dùng skill retro-task chấm task HIS-1240</code></pre>
+<p>Gõ mỗi con số <code>1–5</code> là đủ (5 đúng ngay · 4 sửa nhỏ · 3 sửa đáng kể · 2 làm lại phần lớn · 1 hỏng). AI ghi <code>RETRO_LOG.md</code>, tạo nháp kiến thức nếu có bài học dùng lại được.</p></div>
+
+<!-- ===================== 6. -s / -l ===================== -->
+<h2>6. Task nhỏ (-s) và task lớn (-l)</h2>
+<h3>Task nhỏ -s</h3>
+<pre><code>Dùng skill plan-task: Lên plan HIS-1234 -s -v3: sửa label nút Lưu và căn lại cột Ngày ở màn Tiếp nhận</code></pre>
+<ul>
+  <li>Plan rút gọn: chỉ mục 1, 2A, 7, 9, 10 (+5 nếu có lưu dữ liệu). Không HTML.</li>
+  <li>Tester: cổng 1–2 đầy đủ, test nhanh 1 luồng + 1 case sai, Notion chỉ khi có SQL.</li>
+  <li>Gặp chuông báo → trả lời "giữ -s" hoặc "nâng -m".</li>
+</ul>
+<h3>Task lớn -l</h3>
+<pre><code>Dùng skill plan-task: Lên plan HIS-1250 -l -v2: tích hợp cổng BHYT mới</code></pre>
+<ul>
+  <li>Plan đầy đủ + HTML + UI_PLAN (nếu có giao diện), mục 7 chia <b>giai đoạn</b>.</li>
+  <li>Coder làm <b>từng giai đoạn</b>, hết mỗi giai đoạn dừng cho bạn kiểm tra và commit.</li>
+  <li>Dùng <code>+super</code> với <code>-l</code>: Planner chỉ viết bản vá cho giai đoạn đang làm.</li>
+  <li>Tester bắt buộc khác model Coder.</li>
+</ul>
+<h3>Bảng so sánh</h3>
+<table>
+  <tr><th></th><th>-s</th><th>-m</th><th>-l</th></tr>
+  <tr><td>PLAN.md</td><td>Rút gọn</td><td>Đầy đủ</td><td>Đầy đủ, chia giai đoạn</td></tr>
+  <tr><td>Plan HTML / UI_PLAN</td><td>Không</td><td>Khi bạn yêu cầu / có giao diện mới</td><td>Có</td></tr>
+  <tr><td>Coder</td><td>Làm liền</td><td>Làm liền</td><td>Từng giai đoạn</td></tr>
+  <tr><td>Tester</td><td>Cổng 1–2 + test nhanh</td><td>Đủ 5 cổng</td><td>Đủ 5 cổng, khác model</td></tr>
+  <tr><td>Retro</td><td>Gõ mỗi điểm</td><td>Bình thường</td><td>Nên ghi đủ nguyên nhân</td></tr>
+</table>
+
+<!-- ===================== 7. BUG ===================== -->
+<h2>7. Task sửa bug</h2>
+<div class="step"><div class="t">Bước 1 — Chẩn đoán (read-only)</div>
+<pre><code>Dùng skill diagnose-bug cho bug HIS-1300 (v3): màn Thu tiền lọc "Chuyển khoản" vẫn ra phiếu tiền mặt. Tài khoản test: thu ngân</code></pre>
+<ol>
+  <li><b>Tái hiện trên Orca</b> (app Dev) cho tới khi có <b>tín hiệu đỏ</b> rõ ràng. Không tái hiện được → AI dừng, xin thêm dữ liệu / ảnh / thời điểm lỗi. Không đoán.</li>
+  <li>Thu nhỏ còn ít bước nhất; thử cả version còn lại.</li>
+  <li>3–5 giả thuyết, lần theo chuỗi gọi bằng <code>ask-map</code>.</li>
+  <li>Kiểm chứng chỉ bằng cách đọc (code, snapshot sto, network trên Orca, <code>SELECT</code> nếu bạn cho phép).</li>
+  <li>Xuất <code>tasks/.../BUG_REPORT.md</code> (nguyên nhân gốc + bằng chứng) + nháp kịch bản tái hiện.</li>
+</ol></div>
+<div class="step"><div class="t">Bước 2 — Lên plan sửa như task thường (thường là -s)</div>
+<pre><code>Dùng skill plan-task: Lên plan HIS-1300 -s -v3: sửa theo tasks/2026-11-25_HIS-1300/BUG_REPORT.md</code></pre>
+<p>Planner không lên plan sửa bug nếu chưa có <code>BUG_REPORT.md</code>. Test Plan bắt buộc có case "chạy lại các bước tái hiện → hết tín hiệu đỏ", Tester phải chạy case này.</p></div>
+
+<!-- ===================== 8. TRA CỨU ===================== -->
+<h2>8. Tra cứu nhanh &amp; tiện ích</h2>
+<h3>ask-map — "endpoint này gọi sto nào?"</h3>
+<pre><code>/ask-map endpoint /ThuTien/GetDanhSach gọi sto nào?
+/ask-map chức năng Xuất Excel màn Thu tiền code ở đâu, gọi gì? (cả v2 và v3)
+/ask-map sto sp_ThuTien_DanhSach được gọi ở những chỗ nào?</code></pre>
+<p>Trả lời mẫu:</p>
+<pre><code>[v3] Gọi sto sp_ThuTien_DanhSach (tham số: @TuNgay, @DenNgay, @HinhThucTT)
+Chuỗi gọi: GET /ThuTien/GetDanhSach → ThuTienController.GetDanhSach → ThuTienServices.GetListAsync → sp_ThuTien_DanhSach
+Nguồn: đã kiểm tra code thật (commit a1b2c3d)</code></pre>
+<ul>
+  <li>Lần đầu trên mỗi version: AI tìm cách dự án gọi sto (ADO / Dapper / helper riêng) và hỏi bạn xác nhận 1 lần.</li>
+  <li>Kết quả lưu ở <code>graphify-out/&lt;ver&gt;/ENDPOINT_MAP.md</code>; hỏi lại mà file code chưa đổi → trả lời ngay.</li>
+  <li>Chỉ đọc: không sửa code, không đổi nhánh.</li>
+</ul>
+<h3>wait-what — bắt AI nói lại cho dễ hiểu</h3>
+<pre><code>/wait-what</code></pre>
+<p>AI nói lại tối đa 5 dòng, câu ngắn, dùng đúng thuật ngữ trong <code>GLOSSARY.md</code>.</p>
+
+<!-- ===================== 9. TỰ HỌC ===================== -->
+<h2>9. Tự học: nạp kiến thức &amp; chấm điểm</h2>
+<h3>Kho kiến thức nằm ở đâu</h3>
+<p><code>E:\Project\AI_Agent\.agents\knowledge\</code> (biến <code>KNOWLEDGE_ROOT</code> trong <code>AGENTS.md</code> mục 7) — chỉ nằm trong repo <code>AI_Agent</code>, không copy vào HIS.</p>
+<table>
+  <tr><th style="width:26%">Thành phần</th><th>Nội dung</th></tr>
+  <tr><td><code>INDEX.md</code></td><td>Mục lục, AI đọc trước rồi chỉ mở mục liên quan</td></tr>
+  <tr><td><code>GLOSSARY.md</code></td><td>Thuật ngữ chung: UI id ↔ DTO ↔ cột DB v2/v3 — mọi vai trò đọc mỗi task</td></tr>
+  <tr><td><code>patterns/</code> <code>P###</code></td><td>Mẫu code nên làm theo</td></tr>
+  <tr><td><code>pitfalls/</code> <code>X###</code></td><td>Lỗi đã gặp, cấm lặp lại</td></tr>
+  <tr><td><code>domain/</code> <code>D###</code></td><td>Quy tắc nghiệp vụ HIS</td></tr>
+  <tr><td><code>e2e/</code> <code>E###</code> / <code>F###</code></td><td>Kịch bản test Orca 1 màn hình / luồng nhiều tab (không chứa mật khẩu)</td></tr>
+  <tr><td><code>_proposed/</code></td><td>Nháp AI đề xuất, chờ bạn duyệt</td></tr>
+  <tr><td><code>retro/RETRO_LOG.md</code></td><td>Nhật ký điểm từng task</td></tr>
+</table>
+<h3>Nạp kiến thức hằng ngày (add-knowledge)</h3>
+<table>
+  <tr><th style="width:24%">Việc</th><th>Prompt</th></tr>
+  <tr><td>Thêm mẫu / lỗi / nghiệp vụ</td><td><code>Dùng skill add-knowledge ghi lại: khi xuất Excel phải format ngày dd/MM/yyyy theo giờ VN, xem ThuTienController.ExportExcel</code></td></tr>
+  <tr><td>Thêm thuật ngữ</td><td><code>Dùng skill add-knowledge thêm thuật ngữ: KSK = Khám sức khỏe, bảng KhamSucKhoe</code></td></tr>
+  <tr><td>Thêm kịch bản E2E</td><td><code>Dùng skill add-knowledge ghi lại kịch bản E2E: tạo BN ở màn Tiếp nhận rồi thu tiền ở màn Thu tiền</code></td></tr>
+  <tr><td>Duyệt nháp</td><td><code>Dùng skill add-knowledge duyệt kho nháp</code> → trả lời <code>duyệt</code> / <code>sửa</code> / <code>bỏ</code> / <code>để sau</code></td></tr>
+</table>
+<p class="small">AI soạn theo khuôn, kiểm tra trùng, hỏi v2/v3 → bạn <code>ok</code> mới ghi. Mẫu chỉ vào <code>patterns/</code> khi đã dùng ≥ 2 lần hoặc bạn chắc chắn sẽ dùng lại. Xong nhớ <b>commit repo AI_Agent</b>.</p>
+<h3>Chấm điểm &amp; tổng kết (retro-task)</h3>
+<pre><code>Dùng skill retro-task chấm task HIS-1240      → gõ 1–5 (thêm ghi chú nếu muốn)
+Dùng skill retro-task tổng kết                → bảng xếp hạng vai trò × model × loại task</code></pre>
+<p>Mỗi lần chấm, AI ghi: kích cỡ, chuông báo, super plan, loại task, điểm, khâu lỗi, nguyên nhân, model từng vai trò. <b>Nguyên nhân</b> chọn từ danh sách cố định:</p>
+<table>
+  <tr><th>Nguyên nhân</th><th>Lỗi của</th><th>Cách sửa</th></tr>
+  <tr><td>Thiếu mẫu</td><td>Kho kiến thức</td><td>Thêm mẫu</td></tr>
+  <tr><td>Plan sai/thiếu</td><td>Planner</td><td>Sửa skill hoặc đổi model Planner</td></tr>
+  <tr><td>Không theo mẫu/luật</td><td>Model Coder</td><td>Cân nhắc đổi model</td></tr>
+  <tr><td>Hiểu sai nghiệp vụ</td><td>Kho <code>domain/</code></td><td>Bổ sung nghiệp vụ</td></tr>
+  <tr><td>Task khó/mơ hồ</td><td>Đầu vào</td><td>Làm rõ ticket trước</td></tr>
+</table>
+<div class="box">Quy tắc đọc tổng kết (cần ≥ 3 task mỗi nhóm): <b>nhiều model cùng sai 1 kiểu → sửa quy trình/kho</b>; <b>1 model thấp hơn rõ ở cùng loại task → đổi model</b>; <b>"Thiếu mẫu / Hiểu sai nghiệp vụ" nhiều → đó là thứ bạn cần học thêm và nạp vào</b>.</div>
+
+<!-- ===================== 10. MODEL ===================== -->
+<h2>10. Chọn model cho từng vai trò</h2>
+<table>
+  <tr><th style="width:16%">Vai trò</th><th>Ưu tiên</th><th>Ít quan trọng</th><th>Ghi chú</th></tr>
+  <tr><td>Planner</td><td>Reasoning, Long Context</td><td>Speed</td><td>Phiên cố định; dùng model mạnh nhất, nhất là khi Coder dùng <code>+super</code></td></tr>
+  <tr><td>Coder</td><td>Coding, Tool Calling</td><td>Long Context</td><td>Model nhanh/yếu → bắt buộc dùng <code>+super</code></td></tr>
+  <tr><td>Porter</td><td>Coding + Long Context</td><td>Speed</td><td>Đọc diff nguồn + file đích cùng lúc</td></tr>
+  <tr><td>Tester</td><td>Tool Calling (Orca, Notion), Reasoning</td><td>Writing</td><td>Bắt buộc phiên mới; nên khác model Coder; <b>bắt buộc khác</b> với <code>-l</code> hoặc <code>+super</code></td></tr>
+  <tr><td>retro / add-knowledge</td><td>Writing, rẻ, nhanh</td><td>Coding</td><td>Việc nhẹ</td></tr>
+</table>
+<p class="small">Bảng xếp hạng công khai (vd llm-stats.com) chỉ dùng để chọn ứng viên ban đầu. Bảng xếp hạng thật cho dự án là <code>retro-task tổng kết</code> sau vài chục task.</p>
+
+<!-- ===================== 11. LUẬT ===================== -->
+<h2>11. Luật bắt buộc &amp; việc AI không bao giờ làm</h2>
+<h3>6 luật Zero-Tolerance (vi phạm = FAIL ngay)</h3>
+<table>
+  <tr><th style="width:6%">#</th><th style="width:30%">Luật</th><th>Nghĩa là</th></tr>
+  <tr><td>1</td><td>Không làm mất code đồng nghiệp</td><td>Chỉ sửa đúng chỗ trong plan; không viết lại cả file; không "dọn dẹp" hay refactor ngoài plan. Tester đọc 100% dòng bị xóa.</td></tr>
+  <tr><td>2</td><td>Không đoán</td><td>Không bịa tên cột, id/name HTML, tham số sto. Lệch tên → dừng hỏi.</td></tr>
+  <tr><td>3</td><td>Không silent fallback</td><td>Cấm <code>data.ColA ?? data.colA ?? ""</code>. Mỗi trường đúng 1 tên đã kiểm chứng.</td></tr>
+  <tr><td>4</td><td>Fail-Fast</td><td>Nhánh <code>else</code>/<code>default</code> khi map mã/trạng thái phải báo lỗi, không gán mã mặc định.</td></tr>
+  <tr><td>5</td><td>Bảo mật cấu hình &amp; chỉ đọc DB</td><td>Không đọc <code>appsettings*</code>/<code>Web.config</code>/<code>.env</code> khi chưa được phép; được phép cũng chỉ <code>SELECT</code>.</td></tr>
+  <tr><td>6</td><td>An toàn Git</td><td>AI không <code>git push</code> trên dự án; không sửa trên <code>master2/3</code>; không tự tạo/đổi nhánh — chỉ kiểm tra nhánh bạn tạo.</td></tr>
+</table>
+<h3>Luật SQL</h3>
+<ul>
+  <li>Sửa sto chạy cả 2 version → bắt buộc có đủ <code>before_v2.sql</code> và <code>before_v3.sql</code> (lấy từ Prod).</li>
+  <li>Script luôn tách riêng v2 / v3; thứ tự <code>Table → Index → Func/View → Sto → Seed</code>; có <code>99_rollback</code> cho cột/index/seed/sto mới.</li>
+  <li>Cột mới phải <code>NULL</code> hoặc có <code>DEFAULT</code>; chạy SQL trên Prod xong mới deploy code.</li>
+  <li>Chỉ cú pháp SQL Server 2017 (không <code>GREATEST</code>, <code>LEAST</code>, <code>GENERATE_SERIES</code>).</li>
+</ul>
+<h3>AI không bao giờ</h3>
+<ul>
+  <li>Chạy <code>dotnet build</code> / <code>dotnet run</code> (bạn dùng <code>dotnet watch run</code>).</li>
+  <li>Chạy SQL ghi / <code>EXEC</code> sto / <code>ALTER</code> lên bất kỳ DB nào.</li>
+  <li>Tự ghi vào kho kiến thức chính thức (chỉ tạo nháp; ngoại lệ: thêm dòng lịch sử dùng/chạy).</li>
+  <li>Lưu mật khẩu, connection string, dữ liệu bệnh nhân thật vào kho hay kịch bản.</li>
+</ul>
+
+<!-- ===================== 12. FILE ===================== -->
+<h2>12. File sinh ra trong 1 task</h2>
+<pre><code>&lt;thư mục HIS&gt;/tasks/2026-11-25_HIS-1240/      (ẩn khỏi git công ty)
+├── snapshots/
+│   ├── before_v3.sql          ← bạn xuất từ SSMS (cũng là bản rollback)
+│   └── before_v2.sql
+├── BUG_REPORT.md              ← diagnose-bug (chỉ task sửa bug)
+├── PLAN.md                    ← Planner (nguồn chuẩn)
+├── CODER_NOTES.md             ← Coder (chỉ khi có bước ngoài khuôn / lệch plan)
+├── 01_table_v3.sql ... 05_seed_v3.sql, 04_deploy_v3.sql, 04_deploy_v2.sql
+├── 99_rollback_v3.sql / 99_rollback_v2.sql
+├── DEPLOY_CHECKLIST.md        ← Coder nháp, Tester hoàn thiện
+└── TEST_REPORT.md             ← Tester (mỗi nhánh)
+
+&lt;thư mục HIS&gt;/plans/2026-11-25_HIS-1240.html    ← bản xem trực quan (-l, hoặc -m khi yêu cầu)
+&lt;thư mục HIS&gt;/UI_PLAN/2026-11-25_HIS-1240.html  ← phác thảo giao diện (nếu có)
+
+E:\Project\AI_Agent\.agents\knowledge\
+├── retro/RETRO_LOG.md         ← +1 dòng mỗi task
+└── _proposed/...              ← nháp kiến thức / thuật ngữ / kịch bản</code></pre>
+<div class="box warn"><code>tasks/</code> chỉ nằm trên máy bạn. Bản sao lưu snapshot + rollback được Tester đẩy lên Notion khi PASS. Muốn chắc hơn, sao lưu thêm thư mục <code>tasks/</code> định kỳ.</div>
+
+<!-- ===================== 13. FAQ ===================== -->
+<h2>13. Xử lý sự cố / Câu hỏi thường gặp</h2>
+<table>
+  <tr><th style="width:34%">Tình huống</th><th>Làm gì</th></tr>
+  <tr><td>CLI không thấy skill</td><td>Mở phiên mới. Kiểm tra <code>.agents\skills</code> trong HIS có tồn tại (chạy lại <code>setup.ps1</code>). CLI nào không đọc qua junction → copy thư mục <code>skills</code> cho CLI đó.</td></tr>
+  <tr><td>Planner từ chối lên plan</td><td>Thường do thiếu <code>before_v2.sql</code> / <code>before_v3.sql</code>, hoặc task sửa bug chưa có <code>BUG_REPORT.md</code>.</td></tr>
+  <tr><td>Planner không mở được phiên Coder</td><td>Kiểm tra nhánh đã checkout trong một workspace Orca chưa (<code>--worktree branch:&lt;nhánh&gt;</code>). Hoặc tự mở phiên và dán prompt Planner in sẵn.</td></tr>
+  <tr><td>Coder báo "nhánh không đúng gốc"</td><td>Kiểm tra nhánh tạo từ đúng <code>master2</code>/<code>master3</code> và đúng hậu tố <code>_M2</code>/<code>_M3</code>, rồi checkout lại.</td></tr>
+  <tr><td>Coder báo "không tìm thấy đoạn gốc" (super plan)</td><td>Đồng nghiệp đã sửa file sau khi lên plan → quay lại Planner cập nhật bước đó.</td></tr>
+  <tr><td>Script SQL lỗi trên Dev</td><td>Dán lỗi cho Tester → Tester ghi FAIL → quay lại Coder sửa script.</td></tr>
+  <tr><td>Notion MCP không chạy</td><td>Tester sẽ báo; copy <code>DEPLOY_CHECKLIST.md</code> lên Notion thủ công.</td></tr>
+  <tr><td>Sto trên Prod khác <code>before_*.sql</code> lúc deploy</td><td>Dừng. Xuất snapshot mới, nhờ Coder sửa lại <code>04_deploy_*.sql</code> trên nền bản mới.</td></tr>
+  <tr><td>AI trả lời lan man</td><td><code>/wait-what</code>. Lâu dài: bổ sung thuật ngữ vào <code>GLOSSARY.md</code>.</td></tr>
+  <tr><td>Muốn đổi máy</td><td>Clone <code>AI_Agent</code> → <code>setup.ps1 -HisPath ...</code> → mở phiên mới kiểm tra skill.</td></tr>
+  <tr><td>Sửa luật trong <code>AGENTS.md</code></td><td>Sửa ở repo <code>AI_Agent</code> → commit → <code>setup.ps1 -HisPath ... -Update</code>.</td></tr>
+</table>
+
+<!-- ===================== 14. CHEAT SHEET ===================== -->
+<h2>14. Thẻ tra nhanh (cheat sheet)</h2>
+<pre><code># ===== MỖI TASK =====
+[Bạn]    snapshot sto Prod → tasks/&lt;date&gt;_&lt;ID&gt;/snapshots/before_v3.sql, before_v2.sql
+[Bạn]    tạo nhánh Thinh_&lt;x&gt;_M3 (từ master3), Thinh_&lt;x&gt;_M2 (từ master2)
+[Planner] Dùng skill plan-task: Lên plan &lt;ID&gt; -s|-m|-l [-v2|-v3] [+super]: &lt;mô tả&gt;
+[Bạn]    duyệt   → chọn AI cho Coder (codex / antigravity / devin)
+[Coder]  (tự mở) Dùng skill implement-plan thực hiện đúng tasks/.../PLAN.md cho v3 trên nhánh ..._M3
+[Bạn]    xem dotnet watch run · chạy script 01→05 trên DB Dev
+[Tester] Dùng skill verify-task kiểm duyệt tasks/.../PLAN.md và git diff hiện tại
+[Bạn]    Gate 2: commit + push ..._M3 → "đã commit"
+[Porter] Dùng skill port-version chuyển commit &lt;id&gt; sang nhánh hiện tại theo tasks/.../PLAN.md
+[Tester] verify-task trên ..._M2 → [Bạn] commit + push → "đã commit"
+[Bạn]    Dùng skill retro-task chấm task &lt;ID&gt;   → gõ 1–5
+
+# ===== SỬA BUG =====
+Dùng skill diagnose-bug cho bug &lt;ID&gt; (v3): &lt;triệu chứng&gt;
+Dùng skill plan-task: Lên plan &lt;ID&gt; -s -v3: sửa theo tasks/.../BUG_REPORT.md
+
+# ===== BẤT CỨ LÚC NÀO =====
+/ask-map endpoint &lt;route&gt; gọi sto nào?
+/ask-map sto &lt;tên&gt; được gọi ở đâu (v2)?
+/wait-what
+Dùng skill add-knowledge ghi lại: &lt;kiến thức&gt;, xem &lt;file / hàm&gt;
+Dùng skill add-knowledge thêm thuật ngữ: &lt;thuật ngữ&gt; = &lt;nghĩa&gt;
+Dùng skill add-knowledge duyệt kho nháp
+Dùng skill retro-task tổng kết
+
+# ===== CÀI ĐẶT / BẢO TRÌ =====
+powershell -ExecutionPolicy Bypass -File .\setup.ps1 -HisPath D:\Code\HIS [-Update]
+Dùng skill map-project                      (sau git pull lớn, mỗi version)
+Dùng skill add-knowledge khởi tạo glossary  (1 lần)
+
+# ===== CHỌN CỜ =====
+-s  sửa chức năng có sẵn       -m  cụm chức năng 1 module     -l  nhiều module / tích hợp ngoài
++super  Coder nhanh/yếu        (không cờ: Planner tự [super] bước sto / mã cổng / tiền)</code></pre>
+
+</body>
+</html>

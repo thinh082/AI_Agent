@@ -15,12 +15,31 @@ description: Quy trình chuẩn cho AI Planner (Read-only) phân tích yêu cầ
 ## Quy trình bắt buộc (theo đúng thứ tự)
 
 ### Bước 0 — Đọc cờ Kích cỡ & Version (xem `AGENTS.md` mục 8)
-Cú pháp người dùng: `Lên plan <TASK_ID> [-s|-m|-l] [-v2|-v3]: <mô tả>`.
+Cú pháp người dùng: `Lên plan <TASK_ID> [-s|-m|-l] [-v2|-v3] [+super]: <mô tả>`.
 1. **Cờ kích cỡ do người dùng gắn là quyết định cuối cùng.** AI **không tự đổi** cờ.
 2. **Thiếu cờ kích cỡ** → đề xuất 1 mức kèm lý do ngắn theo tiêu chí ở `AGENTS.md` mục 8, **hỏi người dùng rồi mới làm tiếp**.
 3. **Thiếu cờ version** → mặc định **cả `v2` + `v3`**.
 4. **Chuông báo** (bắt buộc kiểm tra sau khi đọc code ở Bước 2, kể cả khi đã có cờ): nếu task gắn `-s` mà có bất kỳ dấu hiệu nào trong danh sách chuông báo ở `AGENTS.md` mục 8 → **DỪNG hỏi**: *"Task gắn `-s` nhưng có: <dấu hiệu>. Giữ `-s` (chỉ thêm phần an toàn bắt buộc) hay nâng `-m`?"*. Ghi kết quả vào dòng `Chuông báo` của `PLAN.md`.
 5. Kích cỡ chỉ quyết định **độ dài plan / có HTML / mức soi của Tester**. **6 luật Zero-Tolerance và luật SQL (`AGENTS.md` mục 4) áp dụng cho MỌI kích cỡ.**
+6. **Mức chi tiết bước (`AGENTS.md` mục 8 — Super plan):**
+   - **Có `+super`** (Coder yếu / nhanh): **mọi bước** trong mục 7 viết theo định dạng `[super]` bên dưới. Với `-l`: chỉ viết super cho **giai đoạn đang làm**, xong giai đoạn mới lên super cho giai đoạn sau.
+   - **Không có `+super`**: plan thường, nhưng Planner **tự đánh dấu `[super]`** và viết bản vá chi tiết cho các **bước rủi ro cao**: sửa STO / View / Function; mapping mã / trạng thái gửi cổng thông tin / API đối tác; logic tiền.
+   - Bước `[super]` bắt buộc mở **file thật** (hoặc `snapshots/before_*.sql` với STO) để copy đoạn gốc **nguyên văn**, và kiểm tra đoạn đó **chỉ khớp đúng 1 chỗ** trong file.
+   - **Định dạng bước `[super]`:**
+     ````markdown
+     ### Bước N [super] — <Class.Method / tên STO> (<v3|v2>)
+     - **File:** `<đường dẫn>`
+     - **Tìm đoạn (copy NGUYÊN VĂN từ file thật, đủ dài để chỉ khớp đúng 1 chỗ):**
+       ```csharp
+       <đoạn code hiện tại>
+       ```
+     - **Thay bằng / Thêm ngay sau / Thêm ngay trước:**
+       ```csharp
+       <đoạn code mới hoàn chỉnh — đã áp mẫu P/X, đúng tên GLOSSARY / mapping>
+       ```
+     - **Không đụng:** <logic riêng version / code đồng nghiệp gần đó>
+     - **Không tìm thấy đoạn trên (hoặc khớp > 1 chỗ) → DỪNG báo người dùng.**
+     ````
 
 ### Bước 1 — Kiểm tra đầu vào & phạm vi Version
 1. Xác nhận phạm vi version theo cờ ở Bước 0 (mặc định **cả `master2` + `master3`**).
@@ -70,7 +89,7 @@ Cú pháp người dùng: `Lên plan <TASK_ID> [-s|-m|-l] [-v2|-v3]: <mô tả>`
 4. **DỪNG LẠI chờ người dùng duyệt Gate 1 (duyệt cả Plan lẫn `UI_PLAN` nếu có).** Không chuyển sang code khi chưa được duyệt.
 
 ### Bước 6 — Người dùng nói "duyệt" → Bàn giao Coder qua Orca
-1. Chạy `orca agent installed --json`, hỏi **1 lượt**: *"Coder dùng AI nào? (có sẵn: <danh sách `agents[].id`>; model/effort nếu muốn)"*. Hỏi luôn **nhánh làm trước** nếu `PLAN.md` chưa ghi (vd `Thinh_Ksk_M3` — nhánh do người dùng tạo sẵn, xem `AGENTS.md` Luật 6).
+1. Chạy `orca agent installed --json`, hỏi **1 lượt**: *"Coder dùng AI nào? (có sẵn: <danh sách `agents[].id`>; model/effort nếu muốn)"*. Plan **chưa** có `+super` → hỏi kèm: *"Nếu Coder là model nhanh / yếu, nâng plan lên `+super` trước khi bàn giao?"* (đồng ý → viết lại mục 7 theo định dạng `[super]` rồi mới bàn giao). Hỏi luôn **nhánh làm trước** nếu `PLAN.md` chưa ghi (vd `Thinh_Ksk_M3` — nhánh do người dùng tạo sẵn, xem `AGENTS.md` Luật 6).
 2. Ghi `Trạng thái Gate 1: Đã duyệt (YYYY-MM-DD)` vào `PLAN.md` (và badge Gate 1 trong file HTML nếu có). Ngoài dòng này Planner **không sửa file nào khác** (vẫn read-only).
 3. Mở phiên chat mới cho Coder:
    ```text

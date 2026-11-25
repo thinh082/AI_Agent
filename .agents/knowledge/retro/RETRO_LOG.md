@@ -15,6 +15,7 @@
 ## Giá trị cố định cho các cột
 - **Kích cỡ:** `-s` · `-m` · `-l` (theo `PLAN.md`)
 - **Chuông báo:** `Không` · `Giữ -s` (có chuông báo nhưng người dùng giữ `-s`) · `Nâng -m`
+- **Super plan:** `Có` · `Từng bước` · `Không` (theo `PLAN.md`)
 - **Loại task:** `STO` · `UI` · `API` · `Báo cáo` · `Cổng/Đối tác` · `Khác`
 - **Version:** `v2` · `v3` · `v2+v3`
 - **Khâu lỗi:** `Plan` · `Code` · `Test` · `Port` · `Không`
@@ -25,5 +26,5 @@
 - **Nháp:** tên file nháp đã tạo trong `_proposed/`; `—` nếu không có.
 
 ## Nhật ký
-| Ngày | Task | Kích cỡ | Chuông báo | Loại task | Version | Điểm | Khâu lỗi | Nguyên nhân | Mẫu đã dùng | Planner | Coder | Tester | Tester PASS | Ghi chú | Nháp |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Ngày | Task | Kích cỡ | Chuông báo | Super plan | Loại task | Version | Điểm | Khâu lỗi | Nguyên nhân | Mẫu đã dùng | Planner | Coder | Tester | Tester PASS | Ghi chú | Nháp |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|

@@ -18,6 +18,11 @@ description: Quy trình chuẩn cho AI Coder thực thi đúng theo PLAN.md đã
 
 ### Bước 2 — Sửa Code (Tuân thủ 6 luật Zero-Tolerance + `aspnet-backend`)
 - Với code backend ASP.NET Core (.NET 7): tuân thủ thêm quy chuẩn trong `.agents/skills/aspnet-backend/SKILL.md` (Interface+Class cùng file, chọn linh hoạt EF Core vs STO và Model/DTO vs `dynamic`, chuẩn Response `{code, message, data}`, Transaction, Validation).
+0a. **Bước `[super]`** (cả plan nếu `PLAN.md` ghi `Super plan: Có`, hoặc từng bước được đánh dấu `[super]`):
+   - Áp **đúng nguyên văn** bản vá: tìm đoạn gốc → thay / thêm đúng như plan. **Không "cải tiến"**, không viết lại theo ý mình.
+   - Đoạn gốc **không tìm thấy** hoặc **khớp > 1 chỗ** → **DỪNG báo người dùng** (code đã đổi sau khi lên plan).
+   - Bản vá **sai rõ ràng** (sai cú pháp, lệch tên so với Bảng Mapping / `GLOSSARY.md`, vi phạm 6 luật) → **DỪNG báo người dùng**, không tự sửa cho khác plan.
+   - Bước không có `[super]` → làm như bình thường theo các ý bên dưới.
 0. **Theo kích cỡ:** `-s`/`-m` làm liền các bước. **`-l`** làm **từng giai đoạn** theo mục 7 `PLAN.md`; hết mỗi giai đoạn **DỪNG** để người dùng kiểm tra `dotnet watch run` và tự commit rồi mới sang giai đoạn sau.
 1. **Patch-Only:** Chỉ sửa đúng những đoạn cần thiết theo `PLAN.md`. **Cấm viết lại nguyên file.**
 2. **Không dọn dẹp tiện tay:** Không xóa, đổi tên, hoặc refactor bất kỳ hàm/đoạn logic nào không có trong `PLAN.md`.

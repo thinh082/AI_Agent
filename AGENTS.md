@@ -111,7 +111,7 @@ Không để 1 phiên AI vừa tự nghĩ, vừa tự code, vừa tự test. **N
 ---
 
 ## 8. Kích cỡ Task (`-s` / `-m` / `-l`) & Chuông báo
-- **Cú pháp:** `Lên plan <TASK_ID> [-s|-m|-l] [-v2|-v3]: <mô tả>` — không ghi version = cả `v2` + `v3`.
+- **Cú pháp:** `Lên plan <TASK_ID> [-s|-m|-l] [-v2|-v3] [+super]: <mô tả>` — không ghi version = cả `v2` + `v3`.
 - **Cờ kích cỡ do người dùng gắn là quyết định cuối cùng.** Thiếu cờ → Planner đề xuất + hỏi, không tự chọn.
 - **Kích cỡ chỉ quyết định lượng giấy tờ** (độ dài plan, HTML, mức soi của Tester). **6 luật Zero-Tolerance + luật SQL (mục 4) áp dụng cho MỌI kích cỡ.**
 
@@ -129,3 +129,16 @@ Không để 1 phiên AI vừa tự nghĩ, vừa tự code, vừa tự test. **N
 2. Đụng **tiền, BHYT, cổng thông tin, API đối tác**.
 3. Phải **xóa** code / logic có sẵn.
 4. Sửa **> 3 file**, hoặc **v2 và v3 khác nhau** ngay chỗ cần sửa.
+
+### Super plan (`+super` / bước `[super]`)
+Chuyển phần "nghĩ" sang Planner: bước `[super]` là **bản vá gần hoàn chỉnh** (đoạn code gốc nguyên văn + đoạn code mới), Coder chỉ tìm và thay.
+
+| Coder | Task | Dùng |
+|---|---|---|
+| Mạnh (chậm cũng được) | Bình thường | **Plan thường** (không cờ) |
+| Yếu / nhanh | Bất kỳ | **`+super`** — mọi bước dạng bản vá (`-l`: theo từng giai đoạn) |
+| Mạnh | Có bước rủi ro cao | Plan thường; Planner **tự đánh dấu `[super]`** cho bước sửa STO/View/Function, mapping mã gửi cổng thông tin/đối tác, logic tiền |
+
+- Coder gặp bước `[super]`: áp **đúng nguyên văn**; đoạn gốc không thấy / khớp > 1 chỗ / bản vá sai rõ ràng → **DỪNG báo**, không tự sửa khác plan.
+- `Super plan: Có` → **Tester bắt buộc khác model với Coder** (bản vá do Planner viết cũng có thể sai).
+- Ghi cột `Super plan` trong `RETRO_LOG.md` để `retro-task tổng kết` so *model nhanh + super* với *model mạnh + plan thường*.

@@ -19,7 +19,7 @@ description: Quy trình chuẩn cho AI Tester/Reviewer (context mới, ưu tiên
 | 4 — Test Orca | Test nhanh 1 luồng chính + 1 case sai | Theo Test Plan | Theo Test Plan + regression đa tab |
 | 5 — Báo cáo & Notion | `TEST_REPORT.md` rút gọn; Notion chỉ khi có SQL | Đầy đủ | Đầy đủ |
 
-- **`-l` bắt buộc khác model với Coder**: nếu biết đang cùng model → **DỪNG báo người dùng** đổi model/CLI trước khi kiểm duyệt.
+- **`-l` hoặc `Super plan: Có` bắt buộc khác model với Coder**: nếu biết đang cùng model → **DỪNG báo người dùng** đổi model/CLI trước khi kiểm duyệt.
 
 ## Checklist kiểm duyệt bắt buộc (PASS đủ 5 cổng mới được duyệt)
 
@@ -38,6 +38,7 @@ description: Quy trình chuẩn cho AI Tester/Reviewer (context mới, ưu tiên
 5. Sửa trên nhánh `master2` / `master3`, hoặc nhánh không tách đúng gốc theo `AGENTS.md` Luật 6, hoặc có chỉnh sửa/lộ connection string trong `appsettings*.json` / `Web.config` / `.env`.
 6. *(Lưu ý cho chính Tester)* **KHÔNG đọc** `appsettings*.json` trừ khi người dùng cho phép; nếu được phép chạy SQL thì **CHỈ chạy lệnh đọc (`SELECT`)**; **KHÔNG BAO GIỜ chạy `git push`.**
 7. **Kiến thức áp dụng** (mục 7 `PLAN.md`): code lệch mẫu `P` đã gắn mà **không có lý do trong `CODER_NOTES.md`**, hoặc mắc đúng lỗi `X` đã gắn, hoặc trái quy tắc `D` → **FAIL**. Bước ngoài khuôn không được ghi trong `CODER_NOTES.md` → ghi lỗi để Coder bổ sung.
+8. **Bước `[super]`**: code thực tế phải **khớp 100%** bản vá trong `PLAN.md`; lệch mà không được người dùng duyệt → **FAIL**. Đồng thời vẫn soi chính bản vá (bản vá sai thì code sai theo) — phát hiện lỗi trong bản vá → ghi rõ để Planner sửa plan.
 
 ### Cổng 3 — Cross-Check `git diff` vs Script SQL (Chống sót khi lên Prod)
 Đọc toàn bộ thay đổi ở Model / Entity / DTO / Query / lời gọi Stored Procedure trong `git diff` và đối chiếu 1–1 với `tasks/<task>/DEPLOY_CHECKLIST.md`:
