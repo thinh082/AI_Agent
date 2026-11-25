@@ -22,6 +22,10 @@
 
 ---
 
+## 0. Pre-Deploy Check (BẮT BUỘC trước khi chạy Prod)
+- [ ] Xuất lại sto/view/function hiện tại trên **Prod** và so với `snapshots/before_*.sql` → **giống nhau** mới chạy. Khác → DỪNG, cập nhật snapshot & sửa lại `04_deploy_*.sql`.
+- [ ] Chạy xong toàn bộ script SQL `1 → 5` rồi **mới deploy code**.
+
 ## Thứ tự chạy trên `master3` (v3)
 - [ ] **1. Table / Column:** `01_table_v3.sql` *(hoặc: Không có)*
 - [ ] **2. Index / Constraint:** `02_index_v3.sql` *(hoặc: Không có)*
@@ -39,5 +43,6 @@
 ---
 
 ## Ghi chú triển khai & Kiểm tra sau deploy
-- Backup / Rollback: chạy lại file tương ứng trong `snapshots/before_v3.sql` hoặc `snapshots/before_v2.sql`.
+- Backup / Rollback sto/view/function đã có: chạy lại `snapshots/before_v3.sql` hoặc `snapshots/before_v2.sql`.
+- Rollback cột / index / seed / sto mới: chạy `99_rollback_v3.sql` / `99_rollback_v2.sql` *(hoặc: Không có)*.
 - Smoke test sau deploy: ...

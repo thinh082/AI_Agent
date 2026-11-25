@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 3. Lưu trạng thái checkbox vào localStorage
-  document.querySelectorAll("ul.checklist input[type='checkbox']").forEach((cb, idx) => {
+  document.querySelectorAll("ul.checklist input[type='checkbox'], table.checklist-table input[type='checkbox']").forEach((cb, idx) => {
     const key = cb.id || "cb-" + idx;
     if (saved[key]) {
       cb.checked = true;

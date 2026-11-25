@@ -26,6 +26,9 @@
         <span class="badge badge-gate">Gate 1: Chờ duyệt</span>
         <span class="badge">Ngày: YYYY-MM-DD</span>
         <span class="badge">Nhánh làm trước: master3</span>
+        <span class="badge">Kích cỡ: -l</span>
+        <span class="badge">Loại task: STO</span>
+        <span class="badge">Kho kiến thức: &lt;commit&gt;</span>
       </div>
     </div>
 
@@ -226,14 +229,35 @@
     <!-- 7. CÁC BƯỚC THỰC HIỆN -->
     <section class="card">
       <div class="card-header">
-        <h2>7. Các bước thực hiện (Coder bám sát 100%)</h2>
+        <h2>7. Các bước thực hiện &amp; Kiến thức áp dụng (Coder bám sát 100%)</h2>
         <span class="toggle-icon">▼ Thu gọn</span>
       </div>
       <div class="card-body">
-        <ul class="checklist">
-          <li><input type="checkbox" id="s1" /><label for="s1">Bước 1: ...</label></li>
-          <li><input type="checkbox" id="s2" /><label for="s2">Bước 2: ...</label></li>
-        </ul>
+        <table class="checklist-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Bước</th>
+              <th>Mẫu áp dụng (P/X/D)</th>
+              <th>Chưa có mẫu → Cách làm dự kiến &amp; Cách kiểm chứng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox" id="s1" /></td>
+              <td><label for="s1">Bước 1: ...</label></td>
+              <td><code>P001</code></td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" id="s2" /></td>
+              <td><label for="s2">Bước 2: ...</label></td>
+              <td>—</td>
+              <td><em>Cách làm:</em> ... · <em>Kiểm chứng:</em> ...</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Bước chưa có mẫu: Coder được tự chọn cách code nhưng <strong>không sửa ngoài file/hàm của plan</strong> (Luật 1); làm khác dự kiến thì ghi <code>CODER_NOTES.md</code>.</p>
       </div>
     </section>
 

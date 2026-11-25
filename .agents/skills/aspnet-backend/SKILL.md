@@ -9,6 +9,8 @@ Skill này quy định **chuẩn code backend** của dự án để AI Coder vi
 
 > **Nguyên tắc ngôn ngữ:** Phân tích, giải thích, kế hoạch và comment trong code dùng **Tiếng Việt**. Tên class, method, biến dùng **Tiếng Anh** (hoặc giữ nguyên quy ước đặt tên hiện có của module).
 
+> **Ranh giới với kho kiến thức:** Skill này chỉ giữ **chuẩn nền đúng cho mọi task**. Mẫu theo tình huống cụ thể, lỗi đặc thù và nghiệp vụ HIS nằm trong kho kiến thức (`KNOWLEDGE_ROOT`, `AGENTS.md` mục 7) — đọc theo mã `P/X/D` được gắn trong `PLAN.md`.
+
 ---
 
 ## 1. Chọn đúng công cụ truy cập dữ liệu & kiểu dữ liệu (Linh hoạt theo từng trường hợp)
@@ -145,7 +147,8 @@ try
 catch (Exception ex)
 {
     await transaction.RollbackAsync();
-    return new { code = 500, message = "Đã xảy ra lỗi: " + ex.Message };
+    // Ghi log chi tiết `ex` theo cơ chế log hiện có của dự án — KHÔNG trả ex.Message ra client (lộ thông tin nội bộ)
+    return new { code = 500, message = "Đã xảy ra lỗi, vui lòng thử lại" };
 }
 ```
 > Cân nhắc cấu hình `IsolationLevel` (vd: `IsolationLevel.Serializable`) nếu trong transaction có đọc/cộng/trừ số dư, thu tiền, tồn kho... để tránh Dirty Read / Race Condition.

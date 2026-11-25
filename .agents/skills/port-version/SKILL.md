@@ -13,7 +13,7 @@ Sau khi bạn đã hoàn thành + commit + push task trên 1 nhánh (vd `master3
 ### Bước 1 — Kiểm tra nhánh tách & Đọc commit nguồn
 1. Kiểm tra `git branch --show-current`:
    - **TUYỆT ĐỐI KHÔNG sửa trực tiếp trên `master2` hoặc `master3`.**
-   - Phải đảm bảo đang đứng trên **nhánh tách mới** từ nhánh đích mới nhất (vd: `git checkout master2 && git pull && git checkout -b feat/<TASK_ID>-v2`), working tree sạch. Nếu đang đứng trên `master2`/`master3` → tạo nhánh tách trước khi sửa.
+   - Người dùng đã **tạo sẵn và checkout** nhánh tách từ nhánh đích (vd `Thinh_Ksk_M2`). Kiểm tra theo `AGENTS.md` Luật 6 (nhánh gốc đúng nhánh đích) và working tree sạch. **AI không tự tạo / đổi nhánh**; sai hoặc không rõ → **DỪNG báo người dùng**.
 2. Chạy `git show <commit_id>` để đọc toàn bộ diff (từng file, từng dòng thêm/xóa) và commit message.
 3. **KHÔNG đọc** `appsettings*.json` / `Web.config` / `.env` trừ khi người dùng cho phép. **KHÔNG BAO GIỜ chạy `git push`.**
 
@@ -24,11 +24,13 @@ Với từng file bị ảnh hưởng trong `<commit_id>`:
    - Nhánh đích có **logic riêng của version** (vd: v2 có đoạn xử lý riêng cho khách hàng cũ) nằm gần chỗ cần sửa không?
 2. **Kiểm tra Dependency:** Mọi hàm helper, class, cột DB, tham số sto, hoặc config mà `<commit_id>` gọi tới **có tồn tại trên nhánh đích không**?
 3. **Nếu phát hiện xung đột logic hoặc thiếu dependency trên nhánh đích → DỪNG LẠI báo rõ cho người dùng** trước khi sửa. Không tự ý chế hoặc xóa code riêng của nhánh đích.
+4. **Kho kiến thức:** Đọc các mục `P/X/D` gắn trong `PLAN.md` (tại `KNOWLEDGE_ROOT` (khai báo trong `AGENTS.md` mục 7)), đặc biệt phần **Khác biệt v2 / v3**, và áp dụng cách làm của **nhánh đích**. Mục không có hướng dẫn cho nhánh đích → coi là ngoài khuôn, ghi vào `tasks/<task>/CODER_NOTES.md`.
 
 ### Bước 3 — Áp dụng thay đổi (Patch-Only)
 1. Chỉ áp dụng đúng thay đổi nghiệp vụ của `<commit_id>` lên nhánh đích.
 2. **Tuyệt đối giữ nguyên** mọi code riêng của nhánh đích (không mang nhầm code đặc thù của v3 sang v2 hoặc ngược lại).
-3. Tuân thủ đủ **4 luật Zero-Tolerance** (không đoán mò, không silent fallback, Fail-Fast ở `else`/`default`, không xóa hàm ngoài phạm vi).
+3. Tuân thủ đủ **6 luật Zero-Tolerance** trong `AGENTS.md` (không xóa hàm ngoài phạm vi, không đoán mò, không silent fallback, Fail-Fast ở `else`/`default`, bảo mật `appsettings` & chỉ đọc DB, cấm `git push` & cấm sửa trên `master2`/`master3`).
+4. Với code backend ASP.NET Core (.NET 7): tuân thủ quy chuẩn trong `.agents/skills/aspnet-backend/SKILL.md` (khi cần điều chỉnh code cho khớp nhánh đích).
 
 ### Bước 4 — Kiểm tra Script SQL cho nhánh đích
 1. Nếu `<commit_id>` có đụng cột DB / sto / seed data:

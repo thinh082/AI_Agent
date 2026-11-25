@@ -36,7 +36,7 @@ Chạy kiểm tra git trên repo hiện tại (ví dụ dự án `HIS`, nhánh `
 ### Bước 3 — Kiểm tra `graphify` & Tạo / Cập nhật đúng thư mục version
 1. Kiểm tra `graphify` đã cài chưa (`Get-Command graphify`). Nếu chưa cài, báo người dùng lệnh cài (`uv tool install graphifyy` hoặc `pip install graphifyy` rồi `graphify install`).
 2. Đặt thư mục đích là `TARGET_DIR = graphify-out/<master2|master3>` (tạo thư mục nếu chưa có).
-3. **Tạo mới / Cập nhật bản đồ** *(tuyệt đối KHÔNG xóa hay chạm vào thư mục của version còn lại)*:
+3. **Tạo mới / Cập nhật bản đồ** *(tuyệt đối KHÔNG xóa hay chạm vào thư mục của version còn lại, và KHÔNG xóa `ENDPOINT_MAP.md` của skill `ask-map`)*:
    - Kiểm tra `graphify --help` xem có hỗ trợ cờ output (`-o` / `--output`) không:
      - Nếu có cờ output: chạy tạo mới (`graphify . -o <TARGET_DIR>`) hoặc cập nhật (`graphify update -o <TARGET_DIR>` nếu đã có `<TARGET_DIR>/graph.json`).
      - Nếu không có cờ output: chạy `graphify .` (xuất vào `graphify-out/`), sau đó di chuyển các file đầu ra (`graph.json`, `GRAPH_REPORT.md`, `graph.html`, ...) vào đúng `<TARGET_DIR>/` (giữ nguyên thư mục của version kia).

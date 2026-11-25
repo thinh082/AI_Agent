@@ -4,6 +4,14 @@
 - **Nhánh làm trước:** `master3` / `master2`
 - **Version áp dụng:** `[ ] master2 (v2)`  `[ ] master3 (v3)` — *Lý do nếu chỉ làm 1 version:* ...
 - **Trạng thái Gate 1:** `[ ] Chờ duyệt` / `[ ] Đã duyệt`
+- **Kích cỡ:** `-s` / `-m` / `-l` *(do người dùng gắn)*
+- **Chuông báo:** `Không` / `Có: <dấu hiệu> → Giữ -s` / `Có: <dấu hiệu> → Nâng -m`
+- **Loại task:** `STO` / `UI` / `API` / `Báo cáo` / `Cổng/Đối tác` / `Khác`
+- **Revision kho kiến thức:** `<commit ngắn của repo AI_Agent>` *(thêm `+ chưa commit` nếu có)*
+- **Model/CLI Planner (tùy chọn):** ...
+
+> **Plan rút gọn cho `-s`:** chỉ bắt buộc điền mục **1, 2A, 7, 9, 10** (+ mục **5** nếu có lưu/gửi dữ liệu). Các mục khác ghi `Bỏ qua (-s)`. Nếu có chuông báo đụng DB/STO → **bắt buộc** điền thêm **2B, 2C, 4, 8**.
+> **`-l`:** mục 7 chia theo **Giai đoạn** (mỗi giai đoạn kiểm chứng & commit riêng).
 
 ---
 
@@ -33,16 +41,18 @@
   - `path/to/file1`
   - `path/to/file2`
 
-## 3. Bản SQL hiện tại (Snapshot) & Diff v2 vs v3 *(bắt buộc nếu đụng sto/view/function)*
+## 4. Bản SQL hiện tại (Snapshot) & Diff v2 vs v3 *(bắt buộc nếu đụng sto/view/function)*
 - **Đã xuất đủ bản hiện tại từ SSMS:**
   - `[ ] snapshots/before_v2.sql` (từ `master2`)
   - `[ ] snapshots/before_v3.sql` (từ `master3`)
+  - **Nguồn xuất:** `[ ] Production` `[ ] Dev` *(Dev → bắt buộc đối chiếu lại Prod ở Pre-Deploy Check)*
+  - `[ ] Sto/View/Function mới — không có before` *(rollback bằng `DROP` trong `99_rollback_*.sql`)*
 - **Kết quả Diff v2 vs v3:**
   - Giống hệt nhau / Có khác biệt ở các đoạn sau (phải giữ nguyên khi sửa):
     - `v3` có thêm: ...
     - `v2` có riêng: ...
 
-## 4. Bảng Mapping UI ↔ API ↔ DB & Quy tắc Fail-Fast *(bắt buộc nếu lưu/gửi dữ liệu)*
+## 5. Bảng Mapping UI ↔ API ↔ DB & Quy tắc Fail-Fast *(bắt buộc nếu lưu/gửi dữ liệu)*
 
 | HTML `id` / `name` | API / DTO Field | DB Column (`Table.Col`) | Kiểu dữ liệu | Ghi chú |
 |---|---|---|---|---|
@@ -52,29 +62,36 @@
 - Giá trị hợp lệ: `... -> ...`
 - **Nhánh `else` / `default` (Fail-Fast):** Báo lỗi `...` và chặn lưu/gửi (KHÔNG gán mã mặc định).
 
-## 5. Phân tích ảnh hưởng (Impact Analysis)
+## 6. Phân tích ảnh hưởng (Impact Analysis)
 
 | File / DB Object | v2 | v3 | Caller bị ảnh hưởng | Rủi ro |
 |---|---|---|---|---|
 | | | | | |
 
-## 6. Các bước thực hiện (nhỏ, kiểm chứng được)
-1. ...
-2. ...
+## 7. Các bước thực hiện & Kiến thức áp dụng
+| # | Bước (nhỏ, kiểm chứng được) | Mẫu áp dụng (`P/X/D`) | Chưa có mẫu → Cách làm dự kiến & Cách kiểm chứng |
+|---|---|---|---|
+| 1 | ... | `P001` | — |
+| 2 | ... | — | *Cách làm:* ... · *Kiểm chứng:* ... |
 
-## 7. Kế hoạch Script SQL & Rollback
+> Bước chưa có mẫu: Coder được tự chọn *cách code* nhưng **không được sửa ngoài file/hàm của plan** (Luật 1); làm khác dự kiến thì ghi `CODER_NOTES.md`.
+
+## 8. Kế hoạch Script SQL & Rollback
 - Thứ tự chạy Prod:
   1. `01_table_*.sql` (nếu có)
   2. `02_index_*.sql` (nếu có)
   3. `03_func_view_*.sql` (nếu có)
   4. `04_deploy_v3.sql` / `04_deploy_v2.sql` (tách riêng theo từng bản `before_*`)
   5. `05_seed_*.sql` (nếu có)
-- **Rollback:** Chạy lại `snapshots/before_v3.sql` / `snapshots/before_v2.sql`.
+- **Rollback:** Chạy lại `snapshots/before_v3.sql` / `snapshots/before_v2.sql` (sto/view/function đã có) + `99_rollback_v3.sql` / `99_rollback_v2.sql` (cột / index / seed / sto mới).
+- **Thứ tự deploy:** Chạy SQL `1 → 5` xong mới deploy code; cột mới `NULL` hoặc có `DEFAULT`.
 
-## 8. Test Plan
+## 9. Test Plan
 - **Case chính (Happy path):** ...
 - **Case biên & dữ liệu sai (kiểm tra Fail-Fast):** ...
 - **Regression (đảm bảo logic riêng v2/v3 không hỏng):** ...
+- **Kịch bản E2E dùng lại (`E/F` trong `KNOWLEDGE_ROOT/e2e/`):** `E001`, `F001` / *Không có*
+- **Case tái hiện bug** *(nếu có `BUG_REPORT.md`)*: chạy lại các bước tái hiện → tín hiệu đỏ không còn.
 
-## 9. Câu hỏi mở cần xác nhận trước khi code
+## 10. Câu hỏi mở cần xác nhận trước khi code
 - *(Liệt kê mọi cột lệch tên, logic chưa rõ. Nếu không có, ghi "Không có".)*
