@@ -88,7 +88,7 @@ description: Quy trình chuẩn cho AI Tester/Reviewer (context mới, ưu tiên
 1. Ghi `tasks/<task>/TEST_REPORT.md` theo mẫu `.agents/templates/TEST_REPORT.md` với kết luận rõ: **PASS** hoặc **FAIL**.
 2. Nếu **PASS**:
    - Cập nhật `tasks/<task>/DEPLOY_CHECKLIST.md` hoàn chỉnh.
-   - Gọi MCP server **`notion`** ghi vào database **`Release DB Scripts`** (`database_id`: `422813c5-8834-8084-a0b8-fec08809f981`) — tạo/cập nhật 1 dòng mới với đúng **7 thuộc tính**:
+   - Gọi MCP server **`notion`** ghi vào database **`Release DB Scripts`** (`database_id`: `42404570-64e8-81ac-aec2-fdcc868f7ddf`) — tạo/cập nhật 1 dòng mới với đúng **7 thuộc tính**:
      - `Task` (`title`): `<TASK_ID>: <Tiêu đề ngắn>`
      - `Version` (`multi_select`): `v3` và/hoặc `v2`
      - `Trạng thái` (`select`): `Chưa chạy Prod`
