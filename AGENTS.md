@@ -95,11 +95,14 @@ Không để 1 phiên AI vừa tự nghĩ, vừa tự code, vừa tự test. **N
 - **Gate 1:** Người dùng duyệt `PLAN.md` → Coder mới được viết code. **Plan đổi giữa chừng** → skill `update-plan` (Rev mới, đánh dấu MỚI / SỬA / HỦY + HOÀN TÁC) → người dùng *"duyệt rev N"* → Planner báo phiên Coder làm tiếp. Người dùng nói *"duyệt"* trong phiên Planner → Planner ghi `Gate 1: Đã duyệt`, hỏi AI dùng cho Coder và mở phiên chat mới qua `orca agent launch` (`plan-task` Bước 5).
 - **Gate 2:** Người dùng duyệt `TEST_REPORT.md` + `DEPLOY_CHECKLIST.md` + `git diff` → mới merge & deploy. **Tester (AI) ghi Notion** trước Gate 2; người dùng commit xong báo *"đã commit"* → Tester cập nhật cột `Commit`. Người dùng chỉ tự đổi `Trạng thái` khi đã chạy Prod.
 - **Task chưa coi là DONE** nếu chưa có `DEPLOY_CHECKLIST.md` đã cross-check với `git diff` (và đồng bộ lên Online Docs qua MCP nếu đã cấu hình).
+- **Mốc so sánh (Base commit):** Planner chỉ bàn giao khi working tree **sạch** và ghi `Base commit` vào `PLAN.md`; Coder / Tester so bằng `git diff <Base commit>`. **Task PASS → commit trên máy ngay** (chưa cần push) trước khi làm task khác trên cùng nhánh.
+- **Kiểm tra máy móc `check.ps1`** (không dùng AI): Coder chạy trước khi bàn giao, Tester chạy đầu tiên → `tasks/<task>/CHECK_REPORT.md` + `CHECK_DELETED.md`. FAIL phải sửa; WARN phải giải thích có bằng chứng.
 - **Sau Gate 2** (task có port → sau khi nhánh port cũng PASS): chạy `retro-task` chấm điểm 1–5 *(khuyến khích, có thể bỏ qua)*.
 
 ---
 
 ## 7. Kho kiến thức & Chấm điểm (Tự học)
+- **`AGENT_ROOT`** = thư mục repo `AI_Agent` (= `KNOWLEDGE_ROOT` bỏ đi `\.agents\knowledge`). Chứa các script `setup.ps1`, `map.ps1`, **`check.ps1`**.
 - **`KNOWLEDGE_ROOT` = `E:\Project\AI_Agent\.agents\knowledge`** — kho nằm trong repo `AI_Agent` (có commit), **không** copy vào dự án HIS. Đổi máy/đổi đường dẫn → chỉ sửa dòng này. CLI chạy sandbox có thể cần cấp quyền đọc (ghi khi tạo nháp) thư mục này.
 - Cấu trúc: `INDEX.md` (mục lục — đọc trước) · `patterns/` (`P###` mẫu nên làm) · `pitfalls/` (`X###` lỗi cấm lặp) · `domain/` (`D###` nghiệp vụ) · `_proposed/` (nháp chờ duyệt) · `retro/RETRO_LOG.md` (nhật ký điểm) · `_templates/ENTRY.md` (khuôn mục) · **`GLOSSARY.md`** (thuật ngữ chung — **mọi vai trò đọc mỗi task**, dùng đúng tên) · `e2e/` (`E###` / `F###` kịch bản test Orca, khuôn `_templates/E2E.md`).
 - **Planner** gắn mã `P/X/D` cho từng bước ở mục 7 `PLAN.md` + ghi revision kho. **Coder / Porter** làm theo mã đã gắn. **Tester** kiểm tra tuân thủ (Cổng 2).
@@ -143,5 +146,43 @@ Chuyển phần "nghĩ" sang Planner: bước `[super]` là **bản vá gần ho
 | Mạnh | Có bước rủi ro cao | Plan thường; Planner **tự đánh dấu `[super]`** cho bước sửa STO/View/Function, mapping mã gửi cổng thông tin/đối tác, logic tiền |
 
 - Coder gặp bước `[super]`: áp **đúng nguyên văn**; đoạn gốc không thấy / khớp > 1 chỗ / bản vá sai rõ ràng → **DỪNG báo**, không tự sửa khác plan.
+- **`+super` chia lô:** mỗi lô 3–5 bước, Planner bàn giao **từng lô** (mỗi lô một phiên Coder mới, ngữ cảnh sạch); người dùng gõ *"lô tiếp"* trong phiên Planner để sang lô sau; lô cuối xong mới chạy Tester.
 - `Super plan: Có` → **Tester bắt buộc khác model với Coder** (bản vá do Planner viết cũng có thể sai).
 - Ghi cột `Super plan` trong `RETRO_LOG.md` để `retro-task tổng kết` so *model nhanh + super* với *model mạnh + plan thường*.
+
+---
+
+## 9. Phân bổ model theo rủi ro & Luật leo thang (tiết kiệm quota)
+Mục tiêu: **phần lớn task dùng combo tiết kiệm**, chỉ tiêu quota model mạnh ở chỗ rủi ro hoặc khi có dấu hiệu hỏng. Quy trình gọi theo **hạng** (mạnh / tiết kiệm), không ghi cứng tên model — đổi model thì chỉ sửa bảng ánh xạ dưới đây.
+
+**Bảng ánh xạ hạng → model (người dùng tự sửa khi đổi model):**
+
+| Vai trò | Hạng **mạnh** | Hạng **tiết kiệm** |
+|---|---|---|
+| Planner | Claude Opus 5.5 | GPT-6.2 Astra |
+| Coder | GPT-6.2 Astra | Gemini 4 Hydrogen *(luôn kèm `+super`)* |
+| Tester | Gemini 4 Neon | GPT-6.2 Sol |
+
+**Combo theo rủi ro (chọn trước khi làm — Planner ghi gợi ý vào dòng `Combo gợi ý` của `PLAN.md`):**
+
+| Task | Planner | Coder | Tester |
+|---|---|---|---|
+| `-s`, không chuông báo | tiết kiệm | tiết kiệm + `+super` | tiết kiệm |
+| `-m`, **hoặc** đụng STO / View / Function, **hoặc** có chuông báo (kể cả khi giữ `-s`) | **mạnh** | tiết kiệm + `+super` | tiết kiệm |
+| `-l`, **hoặc** đụng tiền / BHYT / cổng thông tin / API đối tác | **mạnh** | **mạnh** | **mạnh** |
+
+- Planner là **đòn bẩy lớn nhất**: plan đúng thì Coder yếu làm theo `+super` vẫn ổn, plan sai thì Coder giỏi cũng sai theo → quota mạnh ưu tiên cho Planner trước.
+- Gợi ý chỉ là gợi ý: **người dùng quyết định** model khi bàn giao (Planner không tự đổi).
+- Coder và Tester vẫn nên **khác họ model** (Cổng 2 `verify-task`); `-l` / `+super` thì **bắt buộc** khác.
+
+**Luật leo thang (đổi model đúng vai trò khi có dấu hiệu, không đổi cả combo):**
+
+| Dấu hiệu | Hành động |
+|---|---|
+| **Coder bị Tester FAIL 2 lần** (`Lần kiểm duyệt` ≥ 2 trong `TEST_REPORT.md`) | Mở **phiên Coder mới** hạng **mạnh** để sửa, theo `implement-plan`. **Không** sửa code trong phiên Planner / Tester, **không** cố vòng thứ 3 với model cũ |
+| **Coder DỪNG vì plan sai** lần thứ 2 trong cùng task | Rev tiếp theo (`update-plan`) dùng Planner hạng **mạnh** |
+| **Tester PASS nhưng người dùng tự phát hiện lỗi** sau đó | Ghi `retro-task` (`Tester PASS = Có`, điểm thấp); lần sau loại task đó dùng Tester hạng **mạnh** |
+| `check.ps1` FAIL lặp lại cùng một lỗi qua nhiều task | Không phải lỗi model → **thiếu kiến thức**: nạp vào kho bằng `add-knowledge` (pitfall `X###`) |
+
+- Mỗi lần leo thang ghi vào cột `Leo thang` của `RETRO_LOG.md` → `retro-task tổng kết` cho biết combo tiết kiệm hay hỏng ở vai trò nào để chỉ nâng đúng vai trò đó.
+

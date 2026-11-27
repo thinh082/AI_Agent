@@ -195,6 +195,7 @@ powershell -ExecutionPolicy Bypass -File .\map.ps1 -HisPath D:\Code\HIS -Full   
   <tr><td>Yếu / nhanh (vd SWE 2 flash)</td><td>Bất kỳ</td><td><code>+super</code></td></tr>
   <tr><td>Mạnh</td><td>Có bước rủi ro cao</td><td>Plan thường — Planner <b>tự đánh dấu <code>[super]</code></b> cho bước sửa sto, map mã gửi cổng/đối tác, logic tiền</td></tr>
 </table>
+<p><b>Chia lô:</b> với <code>+super</code>, Planner nhóm bước thành <b>Lô 1, Lô 2…</b> (3–5 bước / lô) và giao <b>từng lô</b>, mỗi lô một phiên Coder mới (ngữ cảnh sạch). Coder xong lô sẽ dừng báo → bạn gõ <code>lô tiếp</code> trong phiên Planner. Lô cuối xong mới chạy Tester.</p>
 <div class="box warn">Super plan làm Planner chậm hơn và plan dài hơn. Coder mạnh + <code>+super</code> <b>không tốt hơn bao nhiêu</b> mà còn bị trói tay. Dùng super plan thì <b>Tester bắt buộc khác model Coder</b>.</div>
 
 <h3>Ví dụ</h3>
@@ -224,7 +225,7 @@ tasks/2026-11-25_HIS-1240/snapshots/before_v2.sql</code></pre>
 <div class="step"><div class="t"><span class="tag you">BẠN</span> Gate 1 — Duyệt plan → AI tự mở phiên Coder</div>
 <p>Đọc kỹ mục <b>Diff v2/v3</b>, <b>Bảng mapping</b>, <b>Các bước</b>. Ổn thì gõ:</p>
 <pre><code>duyệt</code></pre>
-<p>Planner hỏi: <i>"Coder dùng AI nào? (có sẵn: codex, antigravity, devin)"</i> → bạn trả lời, vd <code>codex</code> (kèm model/effort nếu muốn). Planner ghi <code>Gate 1: Đã duyệt</code> rồi chạy:</p>
+<p>Planner hỏi: <i>"Coder dùng AI nào? (có sẵn: codex, antigravity, devin)"</i> → bạn trả lời, vd <code>codex</code> (kèm model/effort nếu muốn). Planner kiểm tra <b>working tree sạch</b> (task trước chưa commit → nhắc bạn commit riêng trước), ghi <code>Gate 1: Đã duyệt</code> + <code>Base commit</code> rồi chạy:</p>
 <pre><code>orca agent launch --agent codex --worktree branch:Thinh_Ksk_M3 --prompt "Dùng skill implement-plan thực hiện đúng tasks/.../PLAN.md cho v3 trên nhánh Thinh_Ksk_M3." --json</code></pre>
 <p class="small">Không thấy AI bạn chọn / lệnh lỗi → Planner báo, liệt kê agent đang có và in sẵn prompt để bạn tự mở phiên.</p></div>
 
@@ -233,6 +234,8 @@ tasks/2026-11-25_HIS-1240/snapshots/before_v2.sql</code></pre>
   <li>Kiểm tra nhánh: không phải <code>master2/3</code>, đúng gốc <code>master3</code>, khớp version trong plan, hậu tố <code>_M3</code>. Sai → dừng báo.</li>
   <li>Sửa đúng các file/hàm trong plan (patch-only), làm theo mẫu đã gắn. Bước chưa có mẫu → tự chọn cách code nhưng ghi <code>CODER_NOTES.md</code>.</li>
   <li>Sinh script theo thứ tự: <code>01_table</code> → <code>02_index</code> → <code>03_func_view</code> → <code>04_deploy_v3/v2</code> → <code>05_seed</code> (+ <code>99_rollback</code>), nháp <code>DEPLOY_CHECKLIST.md</code>.</li>
+  <li>Ghi tiến độ từng bước vào <code>PROGRESS.md</code> (Chưa làm / Đang làm / Xong / DỪNG).</li>
+  <li>Trước khi bàn giao chạy <code>check.ps1</code> (kiểm tra máy móc, không dùng AI) — còn FAIL thì sửa tiếp.</li>
   <li>Không build, không chạy SQL. Báo bạn xem <code>dotnet watch run</code> và danh sách script cần chạy trên Dev.</li>
 </ul></div>
 
@@ -240,7 +243,7 @@ tasks/2026-11-25_HIS-1240/snapshots/before_v2.sql</code></pre>
 <p>Bạn đổi yêu cầu, Coder dừng vì code thật khác plan, Tester FAIL do plan thiếu... → quay lại phiên Planner:</p>
 <pre><code>Dùng skill update-plan: Cập nhật plan HIS-1240: thêm lọc theo Khoa, bỏ nút In</code></pre>
 <ul>
-  <li>Planner đọc tiến độ code (git diff), ghi <b>Rev 2</b>: đánh dấu bước <code>MỚI</code> / <code>SỬA</code> / <code>HỦY</code>; bước đã code mà bị hủy có thêm bước <code>HOÀN TÁC</code>.</li>
+  <li>Planner đọc <code>PROGRESS.md</code> (không đoán từ diff), sao lưu <code>PLAN.rev1.md</code> rồi ghi <b>Rev 2</b>: đánh dấu bước <code>MỚI</code> / <code>SỬA</code> / <code>HỦY</code>; bước đã code mà bị hủy có thêm bước <code>HOÀN TÁC</code>.</li>
   <li>Bạn gõ <code>duyệt rev 2</code> → Planner gửi tin cho đúng phiên Coder (handle ghi trong plan) để làm tiếp; phiên đã đóng thì mở phiên mới.</li>
   <li>Thay đổi quá lớn → Planner đề xuất tách task mới.</li>
 </ul></div>
@@ -253,7 +256,8 @@ tasks/2026-11-25_HIS-1240/snapshots/before_v2.sql</code></pre>
 <p>Tester hỏi "đã chạy xong script trên Dev chưa?" → bạn tự đăng nhập tab Orca bằng tài khoản test → Tester chạy 5 cổng:</p>
 <table>
   <tr><th style="width:28%">Cổng</th><th>Kiểm tra</th></tr>
-  <tr><td>1. Dòng bị xóa</td><td>100% dòng <code>-</code> phải có trong plan. Xóa ngoài plan → FAIL.</td></tr>
+  <tr><td>0. <code>check.ps1</code></td><td>Chạy đầu tiên: nhánh, Base commit, file ngoài plan, file nhạy cảm, fallback <code>??</code>, SQL cấm, cặp script v2/v3, liệt kê 100% dòng bị xóa. FAIL → task FAIL; WARN → giải thích có bằng chứng.</td></tr>
+  <tr><td>1. Dòng bị xóa</td><td>100% dòng <code>-</code> (từ <code>CHECK_DELETED.md</code>) phải có trong plan. Xóa ngoài plan → FAIL.</td></tr>
   <tr><td>2. 6 luật + kiến thức</td><td>Không fallback <code>??</code>, else/default phải báo lỗi, đúng mapping, đúng mẫu <code>P/X</code>, bước <code>[super]</code> khớp bản vá.</td></tr>
   <tr><td>3. Diff ↔ SQL</td><td>Code dùng cột/sto mới nào thì phải có script tương ứng; <code>04_deploy</code> giữ nguyên logic riêng v2/v3.</td></tr>
   <tr><td>4. Test Orca</td><td>Kịch bản E2E dùng lại + case mới + case sai (Fail-Fast).</td></tr>
@@ -262,6 +266,7 @@ tasks/2026-11-25_HIS-1240/snapshots/before_v2.sql</code></pre>
 <p>FAIL → quay lại phiên Coder sửa → chạy lại Tester.</p></div>
 
 <div class="step"><div class="t"><span class="tag you">BẠN</span> Gate 2 — Duyệt &amp; commit</div>
+<p><b>Task PASS → commit trên máy ngay</b> (kể cả chưa push) trước khi làm task khác trên cùng nhánh, để diff 2 task không lẫn nhau.</p>
 <p>Xem <code>TEST_REPORT.md</code> + <code>DEPLOY_CHECKLIST.md</code> + <code>git diff</code> → <b>tự</b> commit &amp; push nhánh M3 → gõ vào phiên Tester:</p>
 <pre><code>đã commit</code></pre>
 <p>Tester đọc commit và cập nhật cột <code>Commit</code> trên Notion.</p></div>
@@ -385,6 +390,28 @@ Dùng skill retro-task tổng kết                → bảng xếp hạng vai t
   <tr><td>Tester</td><td>Tool Calling (Orca, Notion), Reasoning</td><td>Writing</td><td>Bắt buộc phiên mới; nên khác model Coder; <b>bắt buộc khác</b> với <code>-l</code> hoặc <code>+super</code></td></tr>
   <tr><td>retro / add-knowledge</td><td>Writing, rẻ, nhanh</td><td>Coding</td><td>Việc nhẹ</td></tr>
 </table>
+<h3>Combo theo rủi ro (AGENTS.md mục 9)</h3>
+<table>
+  <tr><th>Vai trò</th><th>Hạng mạnh</th><th>Hạng tiết kiệm</th></tr>
+  <tr><td>Planner</td><td>Claude Opus 5.5</td><td>GPT-6.2 Astra</td></tr>
+  <tr><td>Coder</td><td>GPT-6.2 Astra</td><td>Gemini 4 Hydrogen (luôn kèm <code>+super</code>)</td></tr>
+  <tr><td>Tester</td><td>Gemini 4 Neon</td><td>GPT-6.2 Sol</td></tr>
+</table>
+<table>
+  <tr><th>Task</th><th>Planner</th><th>Coder</th><th>Tester</th></tr>
+  <tr><td><code>-s</code>, không chuông báo</td><td>tiết kiệm</td><td>tiết kiệm + <code>+super</code></td><td>tiết kiệm</td></tr>
+  <tr><td><code>-m</code> / có STO / có chuông báo</td><td><b>mạnh</b></td><td>tiết kiệm + <code>+super</code></td><td>tiết kiệm</td></tr>
+  <tr><td><code>-l</code> / tiền / BHYT / cổng đối tác</td><td><b>mạnh</b></td><td><b>mạnh</b></td><td><b>mạnh</b></td></tr>
+</table>
+<p>Planner ghi <code>Combo gợi ý</code> vào <code>PLAN.md</code> và nhắc lại lúc bàn giao — bạn vẫn là người chọn. Đổi model thì chỉ sửa bảng ánh xạ hạng trong <code>AGENTS.md</code>.</p>
+<h3>Luật leo thang</h3>
+<table>
+  <tr><th>Dấu hiệu</th><th>Làm gì</th></tr>
+  <tr><td>Coder bị Tester FAIL 2 lần</td><td>Mở <b>phiên Coder mới</b> hạng mạnh để sửa (không sửa trong phiên Planner / Tester)</td></tr>
+  <tr><td>Coder dừng vì plan sai lần 2</td><td>Rev tiếp theo (<code>update-plan</code>) dùng Planner hạng mạnh</td></tr>
+  <tr><td>Tester PASS nhưng bạn tự thấy lỗi</td><td>Ghi <code>retro-task</code>; lần sau loại task đó dùng Tester mạnh</td></tr>
+  <tr><td><code>check.ps1</code> FAIL lặp lại cùng lỗi</td><td>Thiếu kiến thức → <code>add-knowledge</code> (pitfall), không phải đổi model</td></tr>
+</table>
 <p class="small">Bảng xếp hạng công khai (vd llm-stats.com) chỉ dùng để chọn ứng viên ban đầu. Bảng xếp hạng thật cho dự án là <code>retro-task tổng kết</code> sau vài chục task.</p>
 
 <!-- ===================== 11. LUẬT ===================== -->
@@ -422,7 +449,11 @@ Dùng skill retro-task tổng kết                → bảng xếp hạng vai t
 │   └── before_v2.sql
 ├── BUG_REPORT.md              ← diagnose-bug (chỉ task sửa bug)
 ├── PLAN.md                    ← Planner (nguồn chuẩn)
+├── PLAN.rev1.md ...           ← bản sao trước mỗi lần update-plan (không sửa)
+├── PROGRESS.md                ← Coder ghi tiến độ từng bước
 ├── CODER_NOTES.md             ← Coder (chỉ khi có bước ngoài khuôn / lệch plan)
+├── CHECK_REPORT.md            ← check.ps1 (FAIL / WARN / OK)
+├── CHECK_DELETED.md           ← check.ps1 (100% dòng bị xóa)
 ├── 01_table_v3.sql ... 05_seed_v3.sql, 04_deploy_v3.sql, 04_deploy_v2.sql
 ├── 99_rollback_v3.sql / 99_rollback_v2.sql
 ├── DEPLOY_CHECKLIST.md        ← Coder nháp, Tester hoàn thiện
@@ -448,6 +479,7 @@ E:\Project\AI_Agent\.agents\knowledge\
   <tr><td>Script SQL lỗi trên Dev</td><td>Dán lỗi cho Tester → Tester ghi FAIL → quay lại Coder sửa script.</td></tr>
   <tr><td>Notion MCP không chạy</td><td>Tester sẽ báo; copy <code>DEPLOY_CHECKLIST.md</code> lên Notion thủ công.</td></tr>
   <tr><td>Sto trên Prod khác <code>before_*.sql</code> lúc deploy</td><td>Dừng. Xuất snapshot mới, nhờ Coder sửa lại <code>04_deploy_*.sql</code> trên nền bản mới.</td></tr>
+  <tr><td>Làm 2 task trên cùng nhánh, Tester báo "ngoài phạm vi"</td><td>Task trước chưa commit nên diff bị lẫn. Commit riêng task trước (chưa cần push), rồi chạy lại Tester. <code>check.ps1</code> sẽ chỉ ra file đó thuộc plan task nào.</td></tr>
   <tr><td>Plan cần đổi khi đang làm</td><td><code>Dùng skill update-plan: Cập nhật plan &lt;ID&gt;: ...</code> → <code>duyệt rev N</code>.</td></tr>
   <tr><td>Cập nhật bản đồ tốn token</td><td>Đừng nhờ AI chạy <code>/graphify .</code>. Tự chạy <code>map.ps1</code> (code-only, không gọi model).</td></tr>
   <tr><td>Dán sto vào chat bị cắt</td><td>Planner sẽ báo; dán lại theo từng phần hoặc tự lưu file vào <code>snapshots/</code>.</td></tr>
@@ -466,8 +498,9 @@ E:\Project\AI_Agent\.agents\knowledge\
 [Bạn]    duyệt   → chọn AI cho Coder (codex / antigravity / devin)
 [Coder]  (tự mở) Dùng skill implement-plan thực hiện đúng tasks/.../PLAN.md cho v3 trên nhánh ..._M3
 [Bạn]    xem dotnet watch run · chạy script 01→05 trên DB Dev
+[Coder/Tester] .\check.ps1 -HisPath D:\Code\HIS -Task &lt;date&gt;_&lt;ID&gt;   (kiểm tra máy móc, không tốn token)
 [Tester] Dùng skill verify-task kiểm duyệt tasks/.../PLAN.md và git diff hiện tại
-[Bạn]    Gate 2: commit + push ..._M3 → "đã commit"
+[Bạn]    Gate 2: commit (ngay, trước task khác) + push ..._M3 → "đã commit"
 [Porter] Dùng skill port-version chuyển commit &lt;id&gt; sang nhánh hiện tại theo tasks/.../PLAN.md
 [Tester] verify-task trên ..._M2 → [Bạn] commit + push → "đã commit"
 [Bạn]    Dùng skill retro-task chấm task &lt;ID&gt;   → gõ 1–5
@@ -475,6 +508,9 @@ E:\Project\AI_Agent\.agents\knowledge\
 # ===== SỬA BUG =====
 Dùng skill diagnose-bug cho bug &lt;ID&gt; (v3): &lt;triệu chứng&gt;
 Dùng skill plan-task: Lên plan &lt;ID&gt; -s -v3: sửa theo tasks/.../BUG_REPORT.md
+
+# ===== +super CHIA LÔ =====
+[Coder]  (xong Lô k, dừng báo)  → [Bạn] gõ "lô tiếp" trong phiên Planner → Planner mở phiên Coder mới cho Lô k+1
 
 # ===== ĐỔI PLAN GIỮA CHỪNG =====
 Dùng skill update-plan: Cập nhật plan &lt;ID&gt;: &lt;thay đổi&gt;     → duyệt rev N

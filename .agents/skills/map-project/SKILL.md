@@ -5,6 +5,12 @@ description: Tạo mới / cập nhật bản đồ Graphify cho đúng version 
 
 # Skill: `map-project` (Bản đồ dự án tách riêng `master2` / `master3` — Tiết kiệm token)
 
+> **BẮT BUỘC — đọc trước, không được quên:**
+> 1. Dựng / cập nhật bằng `map.ps1` (code-only, không gọi model). **Cấm** `/graphify .`, `graphify label`, `graphify hook install` trừ khi người dùng yêu cầu rõ.
+> 2. Không xác định rõ version → **DỪNG**, không ghi lộn bản đồ.
+> 3. Không xóa thư mục version còn lại, không đụng `ENDPOINT_MAP.md`.
+> 4. Không đọc cả `graph.json` / `GRAPH_REPORT.md`; tra bằng `graphify query --budget`.
+
 ## Nguyên tắc tiết kiệm token
 - **Dựng bản đồ không cần AI:** `graphify extract . --code-only` (lần đầu) và `graphify update .` (các lần sau) đọc code bằng tree-sitter, **không gọi model**. Cách nhanh nhất là **người dùng tự chạy `map.ps1`** trong repo `AI_Agent`, không cần mở phiên AI:
   ```powershell

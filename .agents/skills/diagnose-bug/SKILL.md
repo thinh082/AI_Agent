@@ -5,6 +5,13 @@ description: Chẩn đoán bug (read-only) trước khi lên plan sửa. Bắt b
 
 # Skill: `diagnose-bug` (Chẩn đoán Bug — Read-only)
 
+> **BẮT BUỘC — đọc trước, không được quên:**
+> 1. **Read-only**: không sửa code, không build, không `EXEC` sto, không chạy SQL ghi. Chỉ thao tác trên app **Dev**, tạo dữ liệu chỉ qua UI.
+> 2. Chưa tái hiện được bug (chưa có **tín hiệu đỏ**) → **không đưa giả thuyết**, DỪNG xin thêm thông tin.
+> 3. Cần thêm log / debug tạm vào code → **hỏi người dùng**, không tự sửa.
+> 4. Che dữ liệu nhạy cảm (`<REDACTED>`); không lưu mật khẩu.
+> 5. Kết quả bắt buộc: `BUG_REPORT.md` (nguyên nhân gốc + bằng chứng) + nháp kịch bản tái hiện.
+
 ## Khi nào dùng
 - Task là **sửa bug** (người dùng báo "lỗi / sai / không chạy / chậm"). Chạy **trước** `plan-task`, có thể ngay trong phiên Planner.
 - Không dùng cho task thêm / đổi chức năng.

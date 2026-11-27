@@ -5,10 +5,14 @@
 - **Commit / Diff:** `<commit_id hoặc working tree>`
 - **Kết luận tổng:** `[ ] PASS` / `[ ] FAIL`
 - **Model/CLI Tester:** ... *(Model/CLI Coder nếu biết: ...)*
+- **Lần kiểm duyệt:** `1` *(FAIL từ lần 2 trở đi → khuyến nghị leo thang Coder, `AGENTS.md` mục 9)*
 
 ---
 
 ## Cổng 1 — Deleted-Lines Audit (Kiểm tra 100% dòng bị xóa `-`)
+- `[ ]` Đã chạy `check.ps1`: **... FAIL / ... WARN** (xem `CHECK_REPORT.md`; mỗi WARN giải thích bên dưới kèm bằng chứng)
+- **So sánh từ:** `Base commit ...` / `commit_id ...`
+
 | File | Hàm / Đoạn logic bị xóa | Có trong `PLAN.md`? | Đánh giá |
 |---|---|---|---|
 | | | Có / Không | OK / FAIL |

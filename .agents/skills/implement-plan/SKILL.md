@@ -5,6 +5,14 @@ description: Quy trình chuẩn cho AI Coder thực thi đúng theo PLAN.md đã
 
 # Skill: `implement-plan` (AI Coder)
 
+> **BẮT BUỘC — đọc trước, không được quên:**
+> 1. Chỉ làm khi `PLAN.md` ghi **Gate 1: Đã duyệt**; kiểm tra nhánh theo Luật 6 — **không tự tạo / đổi nhánh**, không sửa trên `master_2` / `master_3`.
+> 2. **Patch-only**, đúng file / hàm trong plan; không xóa, không refactor ngoài plan (Luật 1).
+> 3. Đúng tên theo Bảng Mapping / `GLOSSARY.md`; **cấm** `a ?? A ?? ""`; `else` / `default` phải báo lỗi, không gán mã mặc định.
+> 4. Bước `[super]`: áp **nguyên văn**; đoạn gốc không thấy / khớp > 1 chỗ → **DỪNG**. Plan chia lô → **chỉ làm lô được giao**.
+> 5. So thay đổi bằng `git diff <Base commit>`; cập nhật `PROGRESS.md` **sau mỗi bước**.
+> 6. Không build / run, không chạy SQL, không `git push`. Trước khi bàn giao chạy `check.ps1` — **còn FAIL thì không bàn giao**.
+
 ## Điều kiện bắt buộc trước khi chạy
 - Đã có `tasks/<YYYY-MM-DD>_<TASK_ID>/PLAN.md` (**nguồn chuẩn duy nhất**) với **`Trạng thái Gate 1: Đã duyệt`**. File `plans\<YYYY-MM-DD>_<TASK_ID>.html` chỉ là bản xem trực quan — nếu HTML lệch nội dung với `PLAN.md` thì làm theo `PLAN.md` và báo người dùng. Nếu có `UI_PLAN\<YYYY-MM-DD>_<TASK_ID>.html` thì phải bám sát bố cục Bootstrap và đúng 100% các `id`/`name` đã chốt trong file đó. Nếu chưa có plan hoặc còn câu hỏi mở chưa trả lời → **DỪNG, không code**.
 
@@ -16,6 +24,8 @@ description: Quy trình chuẩn cho AI Coder thực thi đúng theo PLAN.md đã
 2. Chạy `git branch --show-current`:
    - Người dùng đã **tạo sẵn và checkout** nhánh (vd `Thinh_Ksk_M3`). Kiểm tra đủ 4 điểm theo `AGENTS.md` Luật 6: không phải `master2`/`master3`, nhánh gốc đúng, khớp version trong `PLAN.md`, hậu tố tên khớp. **AI không tự tạo / đổi nhánh**; sai hoặc không rõ → **DỪNG báo người dùng**.
 3. **KHÔNG đọc** `appsettings*.json` / `Web.config` / `.env` trừ khi người dùng cho phép rõ ràng. **KHÔNG BAO GIỜ chạy `git push`.**
+4. **Mốc so sánh:** lấy `Base commit` trong `PLAN.md`; mọi lần xem thay đổi dùng `git diff <Base commit>` (không dùng `git diff` trần — sẽ lẫn task khác chưa commit). Thiếu `Base commit` → **DỪNG hỏi người dùng**.
+5. **`PROGRESS.md`:** lúc bắt đầu tạo `tasks/<task>/PROGRESS.md` theo mẫu `.agents/templates/PROGRESS.md` (mọi bước mục 7 = `Chưa làm`). **Cập nhật ngay sau mỗi bước** (`Đang làm` / `Xong` / `DỪNG` + file + `Class.Method` / STO đã sửa). Nhận Rev mới → thêm các bước Rev mới vào bảng.
 
 ### Bước 2 — Sửa Code (Tuân thủ 6 luật Zero-Tolerance + `aspnet-backend`)
 - Với code backend ASP.NET Core (.NET 7): tuân thủ thêm quy chuẩn trong `.agents/skills/aspnet-backend/SKILL.md` (Interface+Class cùng file, chọn linh hoạt EF Core vs STO và Model/DTO vs `dynamic`, chuẩn Response `{code, message, data}`, Transaction, Validation).
@@ -24,6 +34,7 @@ description: Quy trình chuẩn cho AI Coder thực thi đúng theo PLAN.md đã
    - Đoạn gốc **không tìm thấy** hoặc **khớp > 1 chỗ** → **DỪNG báo người dùng** (code đã đổi sau khi lên plan).
    - Bản vá **sai rõ ràng** (sai cú pháp, lệch tên so với Bảng Mapping / `GLOSSARY.md`, vi phạm 6 luật) → **DỪNG báo người dùng**, không tự sửa cho khác plan.
    - Bước không có `[super]` → làm như bình thường theo các ý bên dưới.
+   - **Plan chia lô:** chỉ làm đúng **Lô được giao** trong prompt. Chỉ đọc `PLAN.md` mục 1, 5 (mapping), các bước của lô đó và **đúng các file trong lô** — không đọc toàn bộ diff / file khác. Xong lô → cập nhật `PROGRESS.md`, **DỪNG** báo *"Lô k xong"* (không tự làm lô sau). **Lô cuối** mới chạy `check.ps1` và bàn giao Tester.
 0. **Theo kích cỡ:** `-s`/`-m` làm liền các bước. **`-l`** làm **từng giai đoạn** theo mục 7 `PLAN.md`; hết mỗi giai đoạn **DỪNG** để người dùng kiểm tra `dotnet watch run` và tự commit rồi mới sang giai đoạn sau.
 1. **Patch-Only:** Chỉ sửa đúng những đoạn cần thiết theo `PLAN.md`. **Cấm viết lại nguyên file.**
 2. **Không dọn dẹp tiện tay:** Không xóa, đổi tên, hoặc refactor bất kỳ hàm/đoạn logic nào không có trong `PLAN.md`.
@@ -57,7 +68,8 @@ Với mọi thay đổi DB của task, lưu vào `tasks/<task>/`:
 - **Tự kiểm tra cặp script trước khi bàn giao:** task áp dụng **v2 + v3** → mỗi file `0x_*_v3.sql` phải có file `0x_*_v2.sql` tương ứng (sinh trên nền `before_v2*.sql`), hoặc ghi rõ `Không có (lý do)` cho v2 trong `DEPLOY_CHECKLIST.md`. Thiếu → sinh bổ sung ngay, không bàn giao khi còn thiếu.
 
 ### Bước 5 — Kiểm tra với `dotnet watch run` & Bàn giao cho Tester
-- Tóm tắt ngắn gọn các file code đã sửa và các file SQL đã sinh, kèm các bước ngoài khuôn (nếu có `CODER_NOTES.md`).
+- **Chạy `check.ps1` trước khi bàn giao:** `powershell -ExecutionPolicy Bypass -File <AGENT_ROOT>\check.ps1 -HisPath <gốc dự án> -Task <YYYY-MM-DD>_<TASK_ID>`. **FAIL → sửa rồi chạy lại** (không bàn giao khi còn FAIL). WARN → ghi giải thích vào `CODER_NOTES.md`.
+- Tóm tắt ngắn gọn các file code đã sửa và các file SQL đã sinh, kèm các bước ngoài khuôn (nếu có `CODER_NOTES.md`) và kết quả `check.ps1` (số FAIL / WARN).
 - Nhắc người dùng **liếc nhanh terminal `dotnet watch run`** xem có lỗi biên dịch không:
   - Nếu đỏ → người dùng dán lỗi lại để Coder sửa ngay.
   - Nếu task có script SQL → liệt kê thứ tự file `01 → 05` để người dùng **tự chạy trên DB Dev/Test** (AI không chạy), người dùng chạy xong báo lại.

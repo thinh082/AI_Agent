@@ -5,6 +5,13 @@ description: Sau khi task qua Gate 2, hỏi người dùng chấm điểm 1-5, g
 
 # Skill: `retro-task` (Chấm điểm & Rút kinh nghiệm)
 
+> **BẮT BUỘC — đọc trước, không được quên:**
+> 1. Chỉ **append** `RETRO_LOG.md`, chỉ **thêm dòng** `Lịch sử dùng`, nháp vào `_proposed/` — không sửa kho chính thức, skill, code.
+> 2. Hỏi người dùng **1 lượt**; gõ mỗi con số là đủ.
+> 3. Không quy lỗi khi thiếu bằng chứng → ghi `Chưa rõ`.
+> 4. Chỉ tạo nháp khi có bài học **dùng lại được**.
+> 5. Tổng kết: chỉ đọc; nhóm so sánh dưới 3 task → ghi *"chưa đủ dữ liệu"*.
+
 ## Khi nào dùng
 - Sau **Gate 2** của nhánh cuối cùng. Task có port → chạy sau khi nhánh port cũng qua `verify-task`.
 - **Không bắt buộc**: người dùng có thể bỏ qua. Gõ mỗi con số điểm là đủ.
@@ -76,6 +83,7 @@ Không có bài học mới → **không tạo nháp**.
    - **Planner:** điểm TB theo `model Planner` + số lần `Khâu lỗi = Plan`.
    - **Tester:** theo `model Tester` — số lần **Tester PASS nhưng điểm ≤ 2** (để lọt lỗi); tách 2 nhóm **Tester cùng model Coder** vs **khác model Coder**.
    - Phân bố `Nguyên nhân` và `Khâu lỗi` toàn dự án; điểm TB theo `Loại task` và theo `Kích cỡ`.
+   - **Combo & leo thang:** theo `Kích cỡ` / `Loại task`, combo tiết kiệm có phải `Leo thang` không và ở vai trò nào → vai trò nào hay phải leo thang thì đề xuất nâng hạng mặc định cho vai trò đó ở loại task đó (sửa bảng combo `AGENTS.md` mục 9 — chỉ đề xuất). Đọc `Lần kiểm duyệt` trong `TEST_REPORT.md` để biết số vòng FAIL.
    - **Cập nhật plan:** task có `Rev ≥ 3`, nguồn Rev hay đến từ đâu (người dùng đổi yêu cầu / Coder dừng / Tester FAIL) → Rev do Coder / Tester phát hiện thường là dấu hiệu `Plan sai/thiếu`.
    - **Super plan:** điểm TB theo `model Coder × Super plan (Có / Từng bước / Không)` → model nhanh + super có theo kịp model mạnh + plan thường không; số lần Coder DỪNG vì không tìm thấy đoạn gốc.
    - **Tiêu chí kích cỡ:** điểm TB của nhóm `Giữ -s` so với `-s` không chuông báo và `Nâng -m` → biết tiêu chí của người dùng hay chuông báo chuẩn hơn.

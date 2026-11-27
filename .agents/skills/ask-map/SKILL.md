@@ -5,6 +5,12 @@ description: Tra cứu nhanh (read-only) "endpoint / chức năng này gọi sto
 
 # Skill: `ask-map` (Tra cứu nhanh Endpoint ↔ STO / Entity)
 
+> **BẮT BUỘC — đọc trước, không được quên:**
+> 1. **Read-only**: chỉ ghi `ENDPOINT_MAP.md` và nháp thuật ngữ; không sửa code, không đổi nhánh.
+> 2. Chỉ trả lời tên sto / entity **đã thấy trong code thật**; không thấy → nói *"không tìm thấy"* kèm chỗ đã tìm.
+> 3. Dòng đầu trả lời thẳng, ghi rõ version (`v2` / `v3`).
+> 4. Tra bản đồ bằng `graphify query ... --budget`; **không đọc cả** `graph.json` / `GRAPH_REPORT.md`.
+
 ## Khi nào dùng
 Người dùng hỏi kiểu:
 - *"Endpoint `/ThuTien/GetDanhSach` đang gọi sto nào?"*

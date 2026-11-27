@@ -5,6 +5,14 @@ description: Quy trình chuẩn cho AI Tester/Reviewer (context mới, ưu tiên
 
 # Skill: `verify-task` (AI Tester & Reviewer — Độc lập)
 
+> **BẮT BUỘC — đọc trước, không được quên:**
+> 1. Phiên **mới**; **không sửa code, không sửa script SQL** — chỉ ghi `TEST_REPORT.md` và hoàn thiện `DEPLOY_CHECKLIST.md`.
+> 2. Chạy **`check.ps1` đầu tiên**: FAIL → task FAIL; mỗi WARN phải giải thích có bằng chứng.
+> 3. Đọc **100% dòng bị xóa** (`CHECK_DELETED.md`) đối chiếu với `PLAN.md` Rev mới nhất (bước HOÀN TÁC là hợp lệ).
+> 4. Đối chiếu diff ↔ script SQL; có script → **chờ người dùng chạy trên Dev** rồi mới test UI.
+> 5. Mỗi cổng ghi **bằng chứng** (file, đoạn diff, lệnh / thao tác đã chạy). Không có bằng chứng = **chưa kiểm**, không được ghi OK.
+> 6. Chỉ test trên **Dev**, không lưu mật khẩu, không `git push`. FAIL từ lần 2 → ghi khuyến nghị **leo thang** Coder.
+
 ## Nguyên tắc
 - **Bắt buộc** chạy ở **cuộc hội thoại mới** (context sạch). **Nên** dùng **model khác với Coder** (nhất là task đụng tiền, BHYT, cổng thông tin); cùng model vẫn chấp nhận được với task nhỏ hoặc khi chỉ có 1 model. Ghi model/CLI đang dùng vào `TEST_REPORT.md` (phục vụ `retro-task`).
 - Bạn là **người gác cổng**. Bạn **KHÔNG sửa code dự án và KHÔNG sửa script SQL** (`01`→`05`, `99_rollback`); nếu phát hiện lỗi, ghi rõ vào `TEST_REPORT.md` và trả về cho Coder sửa.
@@ -24,8 +32,12 @@ description: Quy trình chuẩn cho AI Tester/Reviewer (context mới, ưu tiên
 ## Checklist kiểm duyệt bắt buộc (PASS đủ 5 cổng mới được duyệt)
 
 ### Cổng 1 — Deleted-Lines Audit (Chống mất hàm đồng nghiệp)
-1. Chạy `git diff` (hoặc `git show <commit_id>`).
-2. Liệt kê **100% các hàm, block logic, điều kiện bị xóa (`-`)**.
+0. **Chạy `check.ps1` TRƯỚC TIÊN:** `powershell -ExecutionPolicy Bypass -File <AGENT_ROOT>\check.ps1 -HisPath <gốc dự án> -Task <YYYY-MM-DD>_<TASK_ID>` → đọc `CHECK_REPORT.md` và `CHECK_DELETED.md`.
+   - **Mọi FAIL** → task FAIL (ghi vào `TEST_REPORT.md`).
+   - **Mọi WARN** → phải giải thích có bằng chứng trong `TEST_REPORT.md`. WARN *"có trong plan task khác"* → **không FAIL**, nhưng ghi rõ và nhắc người dùng commit riêng task đó trước Gate 2.
+   - Plan Rev ≥ 2 → chạy `git diff --no-index PLAN.rev<N-1>.md PLAN.md`: nội dung bị mất ngoài các bước Rev N đánh dấu → báo người dùng / Planner.
+1. Xem thay đổi bằng `git diff <Base commit>` trong `PLAN.md` (sau khi commit: `git show <commit_id>`). **Không dùng `git diff` trần.**
+2. Liệt kê **100% các hàm, block logic, điều kiện bị xóa (`-`)** — dùng `CHECK_DELETED.md` làm danh sách đầy đủ, không bỏ dòng nào.
 3. Đối chiếu từng mục với `tasks/<task>/PLAN.md`:
    - Có bất kỳ hàm/logic nào bị xóa mà **KHÔNG có trong `PLAN.md`** → **FAIL NGAY**.
    - Plan có nhiều Rev → đối chiếu với **Rev mới nhất đã duyệt**; dòng bị xóa do bước `[Rev N: HOÀN TÁC]` là hợp lệ, xóa ngoài phạm vi bước đó vẫn **FAIL**.
@@ -109,4 +121,5 @@ description: Quy trình chuẩn cho AI Tester/Reviewer (context mới, ưu tiên
    - **Sau khi người dùng commit** (người dùng báo *"đã commit"* trong phiên Tester): đọc `git log -1 --format=%H` trên nhánh đang kiểm tra và **cập nhật cột `Commit`** trên Notion (thay `Chưa commit`). Người dùng chỉ còn tự đổi `Trạng thái` khi đã chạy Prod.
    - *(Nếu MCP `notion` đang tắt/lỗi mạng: báo rõ lý do và nhắc người dùng copy thủ công `DEPLOY_CHECKLIST.md` lên Notion).*
 3. Dừng lại chờ người dùng duyệt **Gate 2**.
+3b. **Kết luận FAIL:** ghi `Lần kiểm duyệt: N` (đếm từ `TEST_REPORT.md` cũ của nhánh này). **N ≥ 2** → ghi rõ khuyến nghị: *"Leo thang: mở phiên Coder mới hạng mạnh để sửa (`AGENTS.md` mục 9)"*. Tester **không tự sửa code**.
 4. Sau Gate 2 của nhánh cuối (task có port → sau khi nhánh port cũng PASS): nhắc người dùng chạy skill `retro-task` để chấm điểm 1–5 (có thể bỏ qua).

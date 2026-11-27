@@ -7,11 +7,14 @@
 - **Kích cỡ:** `-s` / `-m` / `-l` *(do người dùng gắn)*
 - **Chuông báo:** `Không` / `Có: <dấu hiệu> → Giữ -s` / `Có: <dấu hiệu> → Nâng -m`
 - **Super plan:** `Có` (`+super` — mọi bước dạng bản vá) / `Từng bước` (chỉ các bước đánh dấu `[super]`) / `Không`
+- **Combo gợi ý (`AGENTS.md` mục 9):** Planner `<mạnh|tiết kiệm>` · Coder `<mạnh|tiết kiệm + +super>` · Tester `<mạnh|tiết kiệm>` — *lý do: ...*
 - **Loại task:** `STO` / `UI` / `API` / `Báo cáo` / `Cổng/Đối tác` / `Khác`
 - **Revision kho kiến thức:** `<commit ngắn của repo AI_Agent>` *(thêm `+ chưa commit` nếu có)*
 - **Model/CLI Planner (tùy chọn):** ...
 - **Phiên bản plan:** `Rev 1` *(tăng khi chạy `update-plan`, xem mục 11)*
 - **Phiên Coder:** `<handle — Planner ghi khi bàn giao qua Orca>`
+- **Base commit:** `<git rev-parse --short HEAD lúc bàn giao — working tree phải sạch>`
+- **Base commit v2:** `<Porter ghi khi bắt đầu port trên nhánh _M2 — bỏ trống nếu không port>`
 
 > **Plan rút gọn cho `-s`:** chỉ bắt buộc điền mục **1, 2A, 7, 9, 10** (+ mục **5** nếu có lưu/gửi dữ liệu). Các mục khác ghi `Bỏ qua (-s)`. Nếu có chuông báo đụng DB/STO → **bắt buộc** điền thêm **2B, 2C, 4, 8**.
 > **`-l`:** mục 7 chia theo **Giai đoạn** (mỗi giai đoạn kiểm chứng & commit riêng).
@@ -95,6 +98,7 @@
 - **Không tìm thấy đoạn trên (hoặc khớp > 1 chỗ) → DỪNG báo người dùng.**
 ````
 
+> `+super`: thêm tiền tố **`Lô k —`** vào tên bước (mỗi lô 3–5 bước); Planner bàn giao từng lô, mỗi lô một phiên Coder mới.
 > Bước chưa có mẫu: Coder được tự chọn *cách code* nhưng **không được sửa ngoài file/hàm của plan** (Luật 1); làm khác dự kiến thì ghi `CODER_NOTES.md`.
 
 ## 8. Kế hoạch Script SQL & Rollback

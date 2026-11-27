@@ -13,6 +13,10 @@ Bộ khung này được thiết kế cho dự án **> 500 file mỗi version**,
 ```text
 .
 ├── AGENTS.md                           # Luật cứng (6 luật Zero-Tolerance + Tech Stack + SQL + Graphify)
+├── setup.ps1                           # Nối quy trình vào dự án (junction + AGENTS.md + exclude)
+├── map.ps1                             # Dựng / cập nhật bản đồ Graphify code-only (không tốn token)
+├── check.ps1                           # Kiểm tra máy móc 1 task (nhánh, file ngoài plan, SQL cấm, cặp script, dòng bị xóa)
+├── docs/HUONG_DAN.pdf                  # Hướng dẫn sử dụng (bản gốc: docs/HUONG_DAN.html)
 ├── plans/                              # Lưu Plan dạng HTML mở trình duyệt đọc cực dễ
 │   └── _template/                      # Template mẫu (plan.html, plan.css, plan.js)
 ├── UI_PLAN/                            # Phác thảo giao diện Bootstrap mẫu để chốt UI trước khi code
@@ -84,6 +88,8 @@ Bộ khung này được thiết kế cho dự án **> 500 file mỗi version**,
 - **Task sửa bug:** chạy trước *"Dùng skill `diagnose-bug` cho bug `<TASK_ID>`: `<mô tả>`"* → AI tái hiện trên Orca, tìm nguyên nhân gốc, ghi `BUG_REPORT.md` → rồi mới lên plan.
 - Gọi skill `plan-task`:
   > *"Dùng skill `plan-task`: Lên plan `<TASK_ID>` `-s|-m|-l` `[-v2|-v3]`: `<mô tả>`. Snapshot SQL ở `tasks/.../snapshots/`."*
+  - Chọn model theo rủi ro (`AGENTS.md` mục 9): task `-s` dùng combo tiết kiệm; có STO / chuông báo → Planner mạnh; `-l` / tiền / BHYT → combo mạnh. Coder bị FAIL 2 lần → mở phiên Coder mới hạng mạnh (leo thang). Planner ghi `Combo gợi ý` vào plan.
+  - `+super` chia **lô 3–5 bước**: Planner giao Lô 1, Coder xong báo → bạn gõ *"lô tiếp"* trong phiên Planner → Planner mở phiên Coder mới cho lô sau.
   - Coder là model nhanh / yếu → thêm `+super` (vd `Lên plan HIS-1240 -m +super: ...`): Planner viết sẵn bản vá cho từng bước, Coder chỉ tìm và thay.
   - Ví dụ: `Lên plan HIS-1234 -s -v3: sửa chức năng A, B ở màn Tiếp nhận` · `Lên plan HIS-1240 -m: bổ sung chức năng xuất Excel thu tiền` (không ghi version = cả v2+v3).
   - Tiêu chí: `-s` sửa thẳng chức năng đã có · `-m`/`-l` cụm nhiều chức năng tùy quy mô — xem `AGENTS.md` mục 8.
@@ -99,7 +105,7 @@ Bộ khung này được thiết kế cho dự án **> 500 file mỗi version**,
 - Nếu task có script SQL: **bạn tự chạy** `01 → 05` (bản đúng version) trên **DB Dev/Test**, xong báo lại cho Tester *"đã chạy xong script"* (lỗi thì dán lỗi để trả về Coder).
 - Mở phiên mới, gọi skill `verify-task`:
   > *"Dùng skill `verify-task` kiểm duyệt `tasks/.../PLAN.md` và `git diff` hiện tại."*
-- Tester soi **100% dòng bị xóa**, quét **6 luật Zero-Tolerance**, **Cross-Check `git diff` vs Script SQL**, test UI trên tab Orca bằng **`orca` CLI**, rồi đẩy `DEPLOY_CHECKLIST.md` lên Notion (`Release DB Scripts`).
+- Tester chạy **`check.ps1`** trước (kiểm tra máy móc: nhánh, file ngoài plan, file nhạy cảm, fallback `??`, SQL cấm, cặp script v2/v3, liệt kê 100% dòng bị xóa), rồi soi **100% dòng bị xóa**, quét **6 luật Zero-Tolerance**, **Cross-Check `git diff` vs Script SQL**, test UI trên tab Orca bằng **`orca` CLI**, rồi đẩy `DEPLOY_CHECKLIST.md` lên Notion (`Release DB Scripts`).
 - **Gate 2:** Bạn duyệt → **bạn tự** `git commit` & `git push` nhánh `..._M3` → báo *"đã commit"* để Tester cập nhật cột `Commit` trên Notion.
 
 ### Bước 5 — Port sang nhánh tách từ `master2` (`master3` ↔ `master2`)

@@ -5,6 +5,13 @@ description: Nạp kiến thức mới (Pattern / Pitfall / Domain / kịch bả
 
 # Skill: `add-knowledge` (Nạp & Duyệt Kho Kiến Thức)
 
+> **BẮT BUỘC — đọc trước, không được quên:**
+> 1. Chỉ ghi trong `KNOWLEDGE_ROOT`; không sửa code / skill khác; không tự `git commit` / `git push`.
+> 2. **Không bịa** code mẫu (chỉ lấy từ người dùng hoặc file thật đã mở); **không ghi số dòng**.
+> 3. **Cấm** dữ liệu bệnh nhân, mật khẩu, connection string, nội dung `appsettings*` / `Web.config` / `.env`.
+> 4. Kiểm tra trùng trong `INDEX.md` / `GLOSSARY.md` trước khi thêm; hỏi áp dụng `v2` / `v3`.
+> 5. Cho người dùng xem bản soạn, *"ok"* mới ghi. Nháp của AI chỉ người dùng duyệt; Pattern cần **đã dùng ≥ 2 lần** hoặc người dùng chắc chắn dùng lại.
+
 ## Vị trí kho & Nguyên tắc
 - Kho nằm tại `KNOWLEDGE_ROOT` khai báo trong `AGENTS.md` mục 7 (repo `AI_Agent`, **không** nằm trong dự án HIS). Mọi đường dẫn bên dưới tính từ `KNOWLEDGE_ROOT`.
 - Skill này **CHỈ được ghi file trong `KNOWLEDGE_ROOT`**. Không sửa code dự án, không sửa skill khác, không chạy SQL.

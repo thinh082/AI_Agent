@@ -5,6 +5,13 @@ description: Quy chuẩn viết code backend ASP.NET Core (.NET 7) theo đúng s
 
 # Skill: `aspnet-backend` (Quy chuẩn Code Backend ASP.NET Core .NET 7)
 
+> **BẮT BUỘC — đọc trước, không được quên:**
+> 1. Interface + Class **cùng 1 file** `<Feature>Services.cs`; Controller mỏng, chỉ gọi Service.
+> 2. EF Core cho CRUD đơn giản; Stored Procedure cho truy vấn phức tạp hoặc module đang dùng STO.
+> 3. Nghiệp vụ quan trọng / gửi cổng đối tác → **DTO rõ ràng**, không dùng `dynamic`.
+> 4. Response luôn `{ code, message, data }`; ghi nhiều bảng → **Transaction**; không trả `ex.Message` ra client.
+> 5. Cần sửa `Models/` (Entities) → **dừng xin phép** người dùng.
+
 Skill này quy định **chuẩn code backend** của dự án để AI Coder viết nhất quán với style của team. Luôn áp dụng song song với **6 Luật Zero-Tolerance** trong `AGENTS.md` (cấm đoán mò, cấm silent fallback, bắt buộc Fail-Fast ở `else`/`default`).
 
 > **Nguyên tắc ngôn ngữ:** Phân tích, giải thích, kế hoạch và comment trong code dùng **Tiếng Việt**. Tên class, method, biến dùng **Tiếng Anh** (hoặc giữ nguyên quy ước đặt tên hiện có của module).

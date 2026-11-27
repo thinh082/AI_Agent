@@ -17,6 +17,7 @@
 - **Chuông báo:** `Không` · `Giữ -s` (có chuông báo nhưng người dùng giữ `-s`) · `Nâng -m`
 - **Super plan:** `Có` · `Từng bước` · `Không` (theo `PLAN.md`)
 - **Rev:** số Rev cuối của `PLAN.md` (`1` = không phải cập nhật plan)
+- **Leo thang:** `Không` · `Coder` · `Planner` · `Tester` (vai trò đã phải nâng lên hạng mạnh giữa chừng, `AGENTS.md` mục 9)
 - **Loại task:** `STO` · `UI` · `API` · `Báo cáo` · `Cổng/Đối tác` · `Khác`
 - **Version:** `v2` · `v3` · `v2+v3`
 - **Khâu lỗi:** `Plan` · `Code` · `Test` · `Port` · `Không`
@@ -27,5 +28,5 @@
 - **Nháp:** tên file nháp đã tạo trong `_proposed/`; `—` nếu không có.
 
 ## Nhật ký
-| Ngày | Task | Kích cỡ | Chuông báo | Super plan | Rev | Loại task | Version | Điểm | Khâu lỗi | Nguyên nhân | Mẫu đã dùng | Planner | Coder | Tester | Tester PASS | Ghi chú | Nháp |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Ngày | Task | Kích cỡ | Chuông báo | Super plan | Rev | Leo thang | Loại task | Version | Điểm | Khâu lỗi | Nguyên nhân | Mẫu đã dùng | Planner | Coder | Tester | Tester PASS | Ghi chú | Nháp |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|

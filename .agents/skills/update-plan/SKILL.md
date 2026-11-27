@@ -5,6 +5,13 @@ description: Cập nhật PLAN.md giữa chừng khi task đang làm (yêu cầu
 
 # Skill: `update-plan` (Cập nhật Plan giữa chừng — Planner)
 
+> **BẮT BUỘC — đọc trước, không được quên:**
+> 1. Chỉ sửa `PLAN.md` (+ `snapshots/` nếu người dùng dán sto mới). Không sửa code, không đổi nhánh.
+> 2. **Sao lưu `PLAN.rev<N-1>.md` trước khi sửa**; chỉ sửa đúng mục cần đổi — **không viết lại cả file**.
+> 3. Tiến độ đọc từ **`PROGRESS.md`**, không đoán từ diff.
+> 4. Bước đã code mà bị hủy → **bắt buộc** có bước `HOÀN TÁC` rõ file + `Class.Method` / STO.
+> 5. Giữ nguyên `Base commit`; chờ người dùng *"duyệt rev N"* rồi mới báo Coder.
+
 ## Khi nào dùng
 Người dùng nói *"Cập nhật plan <TASK_ID>: <thay đổi>"*, thường trong phiên Planner. Các tình huống:
 - Người dùng đổi / thêm yêu cầu khi task đang làm.
@@ -22,15 +29,17 @@ Người dùng nói *"Cập nhật plan <TASK_ID>: <thay đổi>"*, thường tr
 
 ### Bước 1 — Đọc hiện trạng (chỉ đọc)
 1. `tasks/<task>/PLAN.md` (Rev mới nhất), `CODER_NOTES.md`, `TEST_REPORT.md` (nếu có).
-2. Tiến độ code trên nhánh của task: `git status`, `git diff --stat`, `git log --oneline <nhánh gốc>..HEAD` → xác định bước nào **đã làm** / **chưa làm**.
+2. Tiến độ: **đọc `tasks/<task>/PROGRESS.md`** (Coder ghi sau mỗi bước) — **không tự đoán** từ diff. Đối chiếu nhanh `git diff --stat <Base commit>`: lệch với `PROGRESS.md` (vd bước ghi `Chưa làm` nhưng file đã đổi) → hỏi người dùng. Chưa có `PROGRESS.md` → hỏi người dùng / Coder bước nào đã xong.
 
 ### Bước 2 — Phân loại thay đổi
 - **Trong phạm vi task** → cập nhật plan.
 - **Phạm vi mới lớn** (chức năng khác, module khác) → đề xuất **tách task mới**, hỏi người dùng.
-- Thay đổi làm task nặng hơn (vd `-s` giờ đụng STO) → hỏi có **nâng kích cỡ** không (không tự nâng).
+- Thay đổi làm task nặng hơn (vd `-s` giờ đụng STO) → hỏi có **nâng kích cỡ** không (không tự nâng); cập nhật `Combo gợi ý` nếu mức rủi ro đổi (`AGENTS.md` mục 9).
+- Đây là lần thứ 2 Coder **DỪNG vì plan sai** trong task này → khuyến nghị người dùng chạy Rev này bằng Planner hạng **mạnh** (luật leo thang `AGENTS.md` mục 9).
 
 ### Bước 3 — Viết Rev mới vào `PLAN.md`
-1. Tăng `Phiên bản plan: Rev N` ở đầu file; đổi `Trạng thái Gate 1` thành `Chờ duyệt (Rev N)`.
+0. **Sao lưu trước khi sửa:** copy `PLAN.md` → `PLAN.rev<N-1>.md` (vd đang Rev 1 → `PLAN.rev1.md`). **Không ghi đè** file `PLAN.revK.md` đã có. Chỉ sửa đúng các mục cần đổi — **không viết lại cả file**.
+1. Tăng `Phiên bản plan: Rev N` ở đầu file; đổi `Trạng thái Gate 1` thành `Chờ duyệt (Rev N)`. **Giữ nguyên `Base commit`.**
 2. Mục 7: đánh dấu từng bước bị ảnh hưởng:
    - `[Rev N: MỚI]` bước thêm mới.
    - `[Rev N: SỬA]` bước đổi cách làm (ghi rõ đã làm chưa: nếu đã code → nêu phần phải sửa lại).
@@ -40,7 +49,7 @@ Người dùng nói *"Cập nhật plan <TASK_ID>: <thay đổi>"*, thường tr
 5. Có file HTML plan → đồng bộ cùng nội dung.
 
 ### Bước 4 — Xin duyệt phần thay đổi (Gate 1 rút gọn)
-Tóm tắt ngắn cho người dùng: các bước MỚI / SỬA / HỦY / HOÀN TÁC, script SQL thêm / bỏ, ảnh hưởng v2 / v3. **DỪNG chờ** người dùng gõ *"duyệt rev N"*.
+Tóm tắt ngắn cho người dùng: các bước MỚI / SỬA / HỦY / HOÀN TÁC, script SQL thêm / bỏ, ảnh hưởng v2 / v3. Kèm lệnh để người dùng tự xem đúng phần đã đổi: `git diff --no-index tasks/<task>/PLAN.rev<N-1>.md tasks/<task>/PLAN.md`. **DỪNG chờ** người dùng gõ *"duyệt rev N"*.
 
 ### Bước 5 — Báo phiên Coder làm tiếp
 1. Ghi `Trạng thái Gate 1: Đã duyệt (Rev N, YYYY-MM-DD)`.

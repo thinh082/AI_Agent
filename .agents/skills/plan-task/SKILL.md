@@ -5,6 +5,14 @@ description: Quy trình chuẩn cho AI Planner (Read-only) phân tích yêu cầ
 
 # Skill: `plan-task` (AI Planner — Read-Only)
 
+> **BẮT BUỘC — đọc trước, không được quên:**
+> 1. **Read-only:** chỉ ghi `PLAN.md`, `snapshots/` (sto người dùng dán) và các dòng Gate 1 / Base commit / Phiên Coder. Không sửa code, không chạy SQL ghi.
+> 2. **Không đoán** tên cột / `id` / tham số sto: lệch hoặc mơ hồ → ghi *Câu hỏi mở* và **DỪNG hỏi**.
+> 3. Sửa STO / View / Function mà thiếu `before_v2` hoặc `before_v3` → **DỪNG**. Task sửa bug mà chưa có `BUG_REPORT.md` → **DỪNG**.
+> 4. Cờ kích cỡ do người dùng quyết; `-s` gặp chuông báo → **DỪNG hỏi**, không tự nâng.
+> 5. Luôn đọc `GLOSSARY.md` + `INDEX.md`; mỗi bước gắn mã `P/X/D` hoặc ghi *cách làm dự kiến + cách kiểm chứng*; ghi `Combo gợi ý`.
+> 6. Chưa có *"duyệt"* → không bàn giao. Bàn giao: working tree **sạch** + ghi `Base commit`; `+super` thì giao **từng lô**.
+
 ## Vai trò & Giới hạn
 - Bạn là **Planner**. Bạn **KHÔNG ĐƯỢC sửa code dự án** hay chạy SQL thay đổi DB.
 - Mục tiêu:
@@ -21,8 +29,10 @@ Cú pháp người dùng: `Lên plan <TASK_ID> [-s|-m|-l] [-v2|-v3] [+super]: <m
 3. **Thiếu cờ version** → mặc định **cả `v2` + `v3`**.
 4. **Chuông báo** (bắt buộc kiểm tra sau khi đọc code ở Bước 2, kể cả khi đã có cờ): nếu task gắn `-s` mà có bất kỳ dấu hiệu nào trong danh sách chuông báo ở `AGENTS.md` mục 8 → **DỪNG hỏi**: *"Task gắn `-s` nhưng có: <dấu hiệu>. Giữ `-s` (chỉ thêm phần an toàn bắt buộc) hay nâng `-m`?"*. Ghi kết quả vào dòng `Chuông báo` của `PLAN.md`.
 5. Kích cỡ chỉ quyết định **độ dài plan / có HTML / mức soi của Tester**. **6 luật Zero-Tolerance và luật SQL (`AGENTS.md` mục 4) áp dụng cho MỌI kích cỡ.**
-6. **Mức chi tiết bước (`AGENTS.md` mục 8 — Super plan):**
+6. **Combo gợi ý (`AGENTS.md` mục 9):** dựa trên kích cỡ, chuông báo, đụng STO / tiền / BHYT / cổng đối tác → ghi `Combo gợi ý: Planner <mạnh|tiết kiệm> · Coder <...> · Tester <...>` (kèm tên model theo bảng ánh xạ) vào đầu `PLAN.md`. Coder gợi ý hạng tiết kiệm → plan **bắt buộc `+super`**.
+7. **Mức chi tiết bước (`AGENTS.md` mục 8 — Super plan):**
    - **Có `+super`** (Coder yếu / nhanh): **mọi bước** trong mục 7 viết theo định dạng `[super]` bên dưới. Với `-l`: chỉ viết super cho **giai đoạn đang làm**, xong giai đoạn mới lên super cho giai đoạn sau.
+   - **Chia lô (`+super`):** nhóm các bước thành **Lô 1, Lô 2, ...**, mỗi lô **3–5 bước**; bước cùng file / cùng chức năng để chung lô; mỗi lô chỉ phụ thuộc các lô **trước** nó (không phụ thuộc lô sau). Ghi tiền tố `Lô k —` vào tên bước ở mục 7.
    - **Không có `+super`**: plan thường, nhưng Planner **tự đánh dấu `[super]`** và viết bản vá chi tiết cho các **bước rủi ro cao**: sửa STO / View / Function; mapping mã / trạng thái gửi cổng thông tin / API đối tác; logic tiền.
    - Bước `[super]` bắt buộc mở **file thật** (hoặc `snapshots/before_*.sql` với STO) để copy đoạn gốc **nguyên văn**, và kiểm tra đoạn đó **chỉ khớp đúng 1 chỗ** trong file.
    - **Định dạng bước `[super]`:**
@@ -94,13 +104,17 @@ Cú pháp người dùng: `Lên plan <TASK_ID> [-s|-m|-l] [-v2|-v3] [+super]: <m
 4. **DỪNG LẠI chờ người dùng duyệt Gate 1 (duyệt cả Plan lẫn `UI_PLAN` nếu có).** Không chuyển sang code khi chưa được duyệt.
 
 ### Bước 6 — Người dùng nói "duyệt" → Bàn giao Coder qua Orca
-1. Chạy `orca agent installed --json`, hỏi **1 lượt**: *"Coder dùng AI nào? (có sẵn: <danh sách `agents[].id`>; model/effort nếu muốn)"*. Plan **chưa** có `+super` → hỏi kèm: *"Nếu Coder là model nhanh / yếu, nâng plan lên `+super` trước khi bàn giao?"* (đồng ý → viết lại mục 7 theo định dạng `[super]` rồi mới bàn giao). Hỏi luôn **nhánh làm trước** nếu `PLAN.md` chưa ghi (vd `Thinh_Ksk_M3` — nhánh do người dùng tạo sẵn, xem `AGENTS.md` Luật 6).
+1. Chạy `orca agent installed --json`, nhắc lại `Combo gợi ý` trong `PLAN.md`, rồi hỏi **1 lượt**: *"Coder dùng AI nào? (có sẵn: <danh sách `agents[].id`>; model/effort nếu muốn)"*. Plan **chưa** có `+super` → hỏi kèm: *"Nếu Coder là model nhanh / yếu, nâng plan lên `+super` trước khi bàn giao?"* (đồng ý → viết lại mục 7 theo định dạng `[super]` rồi mới bàn giao). Hỏi luôn **nhánh làm trước** nếu `PLAN.md` chưa ghi (vd `Thinh_Ksk_M3` — nhánh do người dùng tạo sẵn, xem `AGENTS.md` Luật 6).
 2. Ghi `Trạng thái Gate 1: Đã duyệt (YYYY-MM-DD)` vào `PLAN.md` (và badge Gate 1 trong file HTML nếu có). Ngoài dòng này Planner **không sửa file nào khác** (vẫn read-only).
+2b. **Working tree sạch + Base commit** (chạy trên workspace của nhánh làm task):
+   - `git status --porcelain` còn thay đổi chưa commit → **DỪNG**, liệt kê file. File thuộc plan của task khác trong `tasks/` → nhắc người dùng **commit riêng task đó** (commit trên máy, chưa cần push). **Không tự commit / stash.**
+   - Sạch → ghi `Base commit: <git rev-parse --short HEAD>` vào đầu `PLAN.md`. Coder / Tester / `check.ps1` sẽ so từ mốc này.
 3. Mở phiên chat mới cho Coder:
    ```text
    orca agent launch --agent <id> --worktree branch:<nhánh> [--model <id> --effort <level>] --prompt "Dùng skill implement-plan thực hiện đúng tasks/<YYYY-MM-DD>_<TASK_ID>/PLAN.md cho <v3|v2> trên nhánh <nhánh>." --json
    ```
 4. Báo lại cho người dùng: `outcome.kind` (chat / terminal), handle, `prompt.outcome`. **Không chờ** Coder làm xong.
 5. Ghi `Phiên Coder: <handle>` vào đầu `PLAN.md` (chat → `orca_session_id:<id>`, terminal → terminal handle) để `update-plan` báo được phiên này khi plan đổi.
+6. **`+super` có chia lô → bàn giao TỪNG LÔ:** prompt lần đầu chỉ giao **Lô 1** (*"... chỉ làm Lô 1 trong PLAN.md"*). Coder xong lô sẽ dừng báo. Người dùng gõ *"lô tiếp"* trong phiên Planner → Planner kiểm tra `PROGRESS.md` (các bước của lô trước phải `Xong`, có `DỪNG` thì xử lý trước, có thể cần `update-plan`) → mở **phiên Coder mới** cho lô kế (ngữ cảnh sạch), cập nhật `Phiên Coder`. Lô cuối xong → nhắc người dùng chạy Tester.
 - **Không thấy AI người dùng chọn** trong `orca agent installed` → báo *"Không thấy `<tên>` trong Orca"*, liệt kê các agent đang có, **đề xuất** chọn agent khác hoặc người dùng tự mở phiên và dán prompt (in sẵn prompt ở trên).
 - **Lệnh launch lỗi** (vd không có workspace nào đang checkout nhánh đó) → báo đúng lỗi, in sẵn prompt để người dùng tự mở. Mất phản hồi → chỉ chạy lại **đúng lệnh cũ** kèm `--retry-launch <operationId>`, **không** launch mới.
