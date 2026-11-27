@@ -65,12 +65,12 @@ Bản nháp do `retro-task` (hoặc AI khác) tạo ra. **Chỉ người dùng m
 1. Đọc `GLOSSARY.md`, tìm trùng:
    - **Cùng nghĩa, khác tên** → hỏi người dùng chọn 1 tên chuẩn; tên còn lại đưa vào cột `Tránh dùng`.
    - **Cùng tên, khác nghĩa** → hỏi người dùng tách thành 2 thuật ngữ rõ ràng.
-2. Lấy tên UI `id`/`name`, DTO, `Bảng.Cột` v2 / v3 **từ code thật** nếu đang mở được dự án (v2 đọc bằng `git show master2:<path>`, không checkout). Không kiểm chứng được → để `?`, ghi lý do ở cột `Ghi chú`. **Không đoán.**
+2. Lấy tên UI `id`/`name`, DTO, `Bảng.Cột` v2 / v3 **từ code thật** nếu đang mở được dự án (v2 đọc bằng `git show <BASE_V2>:<path>` — tên thật ở `AGENTS.md` mục 1, không checkout). Không kiểm chứng được → để `?`, ghi lý do ở cột `Ghi chú`. **Không đoán.**
 3. Hiển thị dòng sẽ thêm → người dùng `ok` → ghi vào bảng.
 4. Glossary vượt ~150 dòng → đề xuất bỏ thuật ngữ ít dùng hoặc chuyển phần giải thích dài sang `domain/D###`.
 
 ## Chế độ D — Khởi tạo glossary (1 lần, trong phiên đang mở dự án HIS)
-1. Xác định version đang đứng (cách ở `map-project` Bước 1); version còn lại đọc bằng `git show <master2|master3>:<path>`.
+1. Xác định version đang đứng (cách ở `map-project` Bước 1); version còn lại đọc bằng `git show <BASE_V2|BASE_V3>:<path>` (tên thật ở `AGENTS.md` mục 1).
 2. Quét **chỉ đọc**: tên menu / màn hình (layout, Views), nhãn các form chính, Model / DTO hay dùng, entity / `DbContext` (tên bảng, cột). **Không** đọc `appsettings*.json` / `Web.config` / `.env`; không truy vấn DB trừ khi được phép (chỉ `SELECT` metadata).
 3. Chọn **30–50 thuật ngữ** cốt lõi, xuất hiện nhiều nhất (bệnh nhân, hồ sơ, BHYT, thu tiền, ...). Ô chưa chắc để `?`.
 4. Ghi nháp `_proposed/<YYYY-MM-DD>_GLOSSARY-init.md` (cùng cột với `GLOSSARY.md`), kèm danh sách chỗ lệch tên đáng chú ý (UI ≠ DB, v2 ≠ v3).

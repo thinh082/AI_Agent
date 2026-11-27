@@ -28,6 +28,7 @@ description: Quy trình chuẩn cho AI Tester/Reviewer (context mới, ưu tiên
 2. Liệt kê **100% các hàm, block logic, điều kiện bị xóa (`-`)**.
 3. Đối chiếu từng mục với `tasks/<task>/PLAN.md`:
    - Có bất kỳ hàm/logic nào bị xóa mà **KHÔNG có trong `PLAN.md`** → **FAIL NGAY**.
+   - Plan có nhiều Rev → đối chiếu với **Rev mới nhất đã duyệt**; dòng bị xóa do bước `[Rev N: HOÀN TÁC]` là hợp lệ, xóa ngoài phạm vi bước đó vẫn **FAIL**.
 
 ### Cổng 2 — Quét 6 Luật Zero-Tolerance
 Đọc kỹ mọi dòng thêm mới (`+`) trong `git diff` và đánh **FAIL NGAY** nếu thấy:

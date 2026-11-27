@@ -25,6 +25,7 @@ Bộ khung này được thiết kế cho dự án **> 500 file mỗi version**,
     │   ├── implement-plan/SKILL.md     # AI Coder (đổi CLI/model linh hoạt)
     │   ├── port-version/SKILL.md       # AI Porter — Chuyển <commit_id> giữa master2 <-> master3
     │   ├── verify-task/SKILL.md        # AI Tester (context mới + orca CLI + Notion MCP)
+    │   ├── update-plan/SKILL.md        # Cập nhật plan giữa chừng (Rev mới, duyệt lại phần đổi)
     │   ├── ask-map/SKILL.md            # Hỏi nhanh: endpoint này gọi sto nào / sto này gọi ở đâu
     │   ├── wait-what/SKILL.md          # Bắt AI nói lại ngắn gọn bằng thuật ngữ GLOSSARY
     │   ├── diagnose-bug/SKILL.md       # Task sửa bug: tái hiện trên Orca + tìm nguyên nhân gốc trước khi plan
@@ -62,7 +63,12 @@ Bộ khung này được thiết kế cho dự án **> 500 file mỗi version**,
    uv tool install graphifyy
    graphify install
    ```
-   Sau mỗi lần `git pull` lớn, chạy cập nhật graph để Planner tra call graph nhanh.
+   Dựng / cập nhật bản đồ **không tốn token AI** (code-only, không gọi model), tự nhận v2/v3 theo nhánh đang đứng:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\map.ps1 -HisPath D:\Code\HIS          # cập nhật (graphify update)
+   powershell -ExecutionPolicy Bypass -File .\map.ps1 -HisPath D:\Code\HIS -Full    # dựng lại toàn bộ
+   ```
+   Không cần chạy sau mỗi `git pull`: AI luôn mở file thật để xác nhận; chạy khi tiện (vd đầu tuần, sau khi đổi nhánh M2 ↔ M3).
 
 ---
 
@@ -72,6 +78,7 @@ Bộ khung này được thiết kế cho dự án **> 500 file mỗi version**,
 - Trên SSMS, chuột phải vào sto cần sửa → **Script Stored Procedure as → ALTER To** trên **cả `master3` và `master2`** — **lấy từ DB Production** (DB sẽ deploy thật). Sto mới chưa tồn tại thì không cần snapshot.
 - ⚠️ `tasks/` bị ẩn khỏi git nên chỉ nằm trên máy bạn — bản snapshot sẽ được Tester đẩy kèm lên Notion làm bản sao lưu.
 - Lưu thành 2 file `tasks/<YYYY-MM-DD>_<TASK_ID>/snapshots/before_v3.sql` và `before_v2.sql` (vừa để AI so sánh v2 vs v3 tránh đè mất logic đồng nghiệp, vừa làm bản backup/rollback sẵn).
+- **Lười tạo file?** Dán thẳng code sto vào chat Planner, ghi `v3:` / `v2:` trước mỗi khối → Planner tự kiểm tra đủ (không bị cắt) và lưu nguyên văn vào `snapshots/`.
 
 ### Bước 2 — Lên Plan (Phiên Planner cố định — tùy model bạn chọn)
 - **Task sửa bug:** chạy trước *"Dùng skill `diagnose-bug` cho bug `<TASK_ID>`: `<mô tả>`"* → AI tái hiện trên Orca, tìm nguyên nhân gốc, ghi `BUG_REPORT.md` → rồi mới lên plan.
@@ -115,6 +122,9 @@ Bộ khung này được thiết kế cho dự án **> 500 file mỗi version**,
 
 ### Lần đầu trên dự án — Khởi tạo glossary
 - Mở phiên AI trong dự án HIS: *"Dùng skill `add-knowledge` khởi tạo glossary"* → AI đọc code, soạn nháp 30–50 thuật ngữ → bạn `duyệt hết` / `bỏ dòng ...` / `sửa dòng ...`.
+
+### Đang làm mà cần đổi plan
+- *"Dùng skill `update-plan`: Cập nhật plan `<TASK_ID>`: <thay đổi>"* → Planner đọc tiến độ code, ghi **Rev mới** (bước MỚI / SỬA / HỦY + HOÀN TÁC), bạn gõ *"duyệt rev N"* → Planner báo phiên Coder làm tiếp.
 
 ### Bất cứ lúc nào — Tra cứu nhanh
 - AI nói khó hiểu / dài dòng → gõ `/wait-what`.

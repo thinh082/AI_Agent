@@ -50,11 +50,16 @@ Cú pháp người dùng: `Lên plan <TASK_ID> [-s|-m|-l] [-v2|-v3] [+super]: <m
      - `before_v3.sql` (từ `master3`, nếu đụng v3)
    - **Nếu thiếu bất kỳ bản nào của version có liên quan → DỪNG NGAY**, yêu cầu người dùng xuất script hiện tại từ SSMS cho DB còn thiếu rồi mới lên plan. **Không được tự lên plan khi thiếu 1 trong 2 bản.**
    - **Ngoại lệ — sto/view/function MỚI** (chưa tồn tại trên DB): không cần `before`, ghi rõ `Sto mới — không có before` trong PLAN, rollback = `DROP` trong `99_rollback_*.sql`.
+   - **Người dùng dán thẳng code sto vào chat** (thay vì tự tạo file) → Planner tự lưu snapshot:
+     1. Mỗi khối phải ghi rõ version (vd dòng đầu `v3:` / `v2:`). Không ghi → **hỏi**, không đoán.
+     2. Kiểm tra đủ: có dòng `CREATE` / `ALTER PROCEDURE | VIEW | FUNCTION <tên>` khớp object cần sửa; không bị cắt cụt (kết thúc hợp lệ, `BEGIN` / `END` cân). Nghi bị cắt (chat giới hạn độ dài) → báo người dùng dán lại theo từng phần hoặc tự lưu file.
+     3. Lưu **nguyên văn** (không format, không sửa) vào `tasks/<task>/snapshots/`: 1 object → `before_v3.sql` / `before_v2.sql`; nhiều object → `before_v3_<TenObject>.sql`. UTF-8.
+     4. Đây là ngoại lệ duy nhất Planner được ghi file ngoài `PLAN.md` (và dòng Gate 1).
    - Hỏi và ghi rõ **nguồn xuất snapshot** (Production hay Dev) vào PLAN.
 4. **Task sửa bug:** phải có `tasks/<task>/BUG_REPORT.md` từ skill `diagnose-bug` (đã tái hiện + nguyên nhân gốc). Chưa có → đề xuất chạy `diagnose-bug` trước, không lên plan sửa theo phỏng đoán.
 
 ### Bước 2 — Thu thập Context (Graphify + Đọc file thật)
-1. Nếu có bản đồ trong `graphify-out/master2/` hoặc `graphify-out/master3/`, truy vấn **đúng thư mục tương ứng với version đang làm** (hoặc đọc cả 2 khi task áp dụng cả v2 + v3) để tìm nhanh các màn hình, controller, service, repository, và lời gọi sto liên quan (blast radius).
+1. Nếu có bản đồ trong `graphify-out/master2/` hoặc `graphify-out/master3/`, truy vấn **đúng thư mục tương ứng với version đang làm** (hoặc cả 2 khi task áp dụng cả v2 + v3) để tìm nhanh các màn hình, controller, service, repository, và lời gọi sto liên quan (blast radius). **Tiết kiệm token:** dùng `graphify query "<từ khóa>" --budget 1500 --graph graphify-out/<ver>/graph.json` / `affected` / `explain` (xem `map-project`), **không đọc cả** `graph.json` / `GRAPH_REPORT.md`; câu hỏi "endpoint gọi sto nào" → dùng `ask-map` (có bộ nhớ đệm).
 2. **Luôn mở và đọc trực tiếp các file code thật** liên quan để xác nhận (không tin 100% vào graph).
 3. **KHÔNG tự ý đọc** `appsettings*.json`, `Web.config`, `.env` hay bất kỳ file chứa connection string SQL nào trừ khi người dùng cho phép rõ ràng. Nếu được phép truy vấn DB, **chỉ chạy lệnh đọc (`SELECT`, `OBJECT_DEFINITION`)**.
 4. **Tra kho kiến thức** tại `KNOWLEDGE_ROOT` (khai báo trong `AGENTS.md` mục 7):
@@ -96,5 +101,6 @@ Cú pháp người dùng: `Lên plan <TASK_ID> [-s|-m|-l] [-v2|-v3] [+super]: <m
    orca agent launch --agent <id> --worktree branch:<nhánh> [--model <id> --effort <level>] --prompt "Dùng skill implement-plan thực hiện đúng tasks/<YYYY-MM-DD>_<TASK_ID>/PLAN.md cho <v3|v2> trên nhánh <nhánh>." --json
    ```
 4. Báo lại cho người dùng: `outcome.kind` (chat / terminal), handle, `prompt.outcome`. **Không chờ** Coder làm xong.
+5. Ghi `Phiên Coder: <handle>` vào đầu `PLAN.md` (chat → `orca_session_id:<id>`, terminal → terminal handle) để `update-plan` báo được phiên này khi plan đổi.
 - **Không thấy AI người dùng chọn** trong `orca agent installed` → báo *"Không thấy `<tên>` trong Orca"*, liệt kê các agent đang có, **đề xuất** chọn agent khác hoặc người dùng tự mở phiên và dán prompt (in sẵn prompt ở trên).
 - **Lệnh launch lỗi** (vd không có workspace nào đang checkout nhánh đó) → báo đúng lỗi, in sẵn prompt để người dùng tự mở. Mất phản hồi → chỉ chạy lại **đúng lệnh cũ** kèm `--retry-launch <operationId>`, **không** launch mới.

@@ -22,8 +22,8 @@ Người dùng hỏi kiểu:
 
 ### Bước 1 — Xác định version
 1. Người dùng nói rõ `v2` / `v3` → dùng đúng version đó.
-2. Không nói → xác định nhánh hiện tại tách từ `master2` hay `master3` (cùng cách ở `map-project` Bước 1: so `git rev-list --count master2..HEAD` với `master3..HEAD`, dùng `origin/...` nếu thiếu local). Không xác định được → hỏi người dùng.
-3. Cần version **không phải nhánh đang đứng** → đọc file bằng `git show <master2|master3>:<path>` (không checkout).
+2. Không nói → xác định nhánh hiện tại tách từ `master2` hay `master3` (cùng cách ở `map-project` Bước 1: so `git rev-list --count <BASE_V2>..HEAD` với `<BASE_V3>..HEAD` — tên thật ở `AGENTS.md` mục 1, dùng `origin/...` nếu thiếu local). Không xác định được → hỏi người dùng.
+3. Cần version **không phải nhánh đang đứng** → đọc file bằng `git show <BASE_V2|BASE_V3>:<path>` (vd `git show master_2:Controllers/X.cs`, không checkout).
 4. Người dùng hỏi cả 2 version → trả lời từng version và **chỉ rõ chỗ khác nhau**.
 
 ### Bước 2 — Tra bộ nhớ đệm `ENDPOINT_MAP.md`

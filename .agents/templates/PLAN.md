@@ -10,6 +10,8 @@
 - **Loại task:** `STO` / `UI` / `API` / `Báo cáo` / `Cổng/Đối tác` / `Khác`
 - **Revision kho kiến thức:** `<commit ngắn của repo AI_Agent>` *(thêm `+ chưa commit` nếu có)*
 - **Model/CLI Planner (tùy chọn):** ...
+- **Phiên bản plan:** `Rev 1` *(tăng khi chạy `update-plan`, xem mục 11)*
+- **Phiên Coder:** `<handle — Planner ghi khi bàn giao qua Orca>`
 
 > **Plan rút gọn cho `-s`:** chỉ bắt buộc điền mục **1, 2A, 7, 9, 10** (+ mục **5** nếu có lưu/gửi dữ liệu). Các mục khác ghi `Bỏ qua (-s)`. Nếu có chuông báo đụng DB/STO → **bắt buộc** điền thêm **2B, 2C, 4, 8**.
 > **`-l`:** mục 7 chia theo **Giai đoạn** (mỗi giai đoạn kiểm chứng & commit riêng).
@@ -114,3 +116,8 @@
 
 ## 10. Câu hỏi mở cần xác nhận trước khi code
 - *(Liệt kê mọi cột lệch tên, logic chưa rõ. Nếu không có, ghi "Không có".)*
+
+## 11. Lịch sử thay đổi plan *(skill `update-plan` ghi thêm, không xóa dòng cũ)*
+| Rev | Ngày | Thay đổi | Bước ảnh hưởng (MỚI / SỬA / HỦY / HOÀN TÁC) | Lý do / Nguồn | Duyệt |
+|---|---|---|---|---|---|
+| Rev 1 | YYYY-MM-DD | Plan gốc | — | — | Gate 1 |

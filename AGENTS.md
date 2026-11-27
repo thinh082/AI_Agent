@@ -7,6 +7,7 @@
 ## 1. Bối cảnh dự án & Tech Stack
 - Dự án lớn (**> 500 file mỗi version**), chạy song song **2 version**: `master2` (v2 — khách hàng cũ) và `master3` (v3 — khách hàng mới).
 - Thông thường 1 task áp dụng cho **cả 2 nhánh** (sửa 1 nhánh trước, commit lấy `<commit_id>`, rồi port sang nhánh còn lại), trừ khi ticket ghi rõ chỉ custom riêng 1 nhánh.
+- **Tên nhánh gốc thật (git):** v2 = **`master_2`**, v3 = **`master_3`**. Trong tài liệu gọi tắt `master2` / `master3`; **mọi lệnh git dùng tên thật** (ký hiệu `<BASE_V2>` = `master_2`, `<BASE_V3>` = `master_3`). Đổi tên nhánh → sửa dòng này + tham số `-BaseV2` / `-BaseV3` của `map.ps1`.
 - **Tech Stack:** ASP.NET Core MVC (.NET 7) + HTML / CSS / JavaScript (Bootstrap) + **SQL Server 2017** *(chỉ dùng cú pháp T-SQL tương thích SQL Server 2017 — cấm dùng hàm chỉ có ở bản 2019/2022+ như `GREATEST`, `LEAST`, `GENERATE_SERIES`)*.
 - **Database:** SQL Server 2017 (`master2` và `master3`). Stored Procedure / View / Function **không nằm trong git** và đồng nghiệp có thể sửa trực tiếp trên DB mà không ghi chú.
 - **Môi trường chạy dev:** Người dùng **100% build/chạy bằng `dotnet watch run`**. AI **KHÔNG tự ý chạy `dotnet build` / `dotnet run`** trừ khi người dùng yêu cầu rõ (tránh chậm và xung đột lock file).
@@ -18,7 +19,7 @@ Không để 1 phiên AI vừa tự nghĩ, vừa tự code, vừa tự test. **N
 
 | Vai trò | Skill tương ứng | Cách vận hành thực tế | Quyền hạn |
 |---|---|---|---|
-| **Planner** | `.agents/skills/plan-task/SKILL.md` | **Phiên chuyên trách cố định** (nạp context 1 lần, 100% phiên đó chỉ lên plan) | **Read-only** — chỉ đọc code, Graphify, snapshot SQL, viết `PLAN.md` |
+| **Planner** | `.agents/skills/plan-task/SKILL.md` · `.agents/skills/update-plan/SKILL.md` (cập nhật plan giữa chừng) | **Phiên chuyên trách cố định** (nạp context 1 lần, 100% phiên đó chỉ lên plan) | **Read-only** — chỉ đọc code, Graphify, snapshot SQL, viết `PLAN.md` |
 | **Coder** | `.agents/skills/implement-plan/SKILL.md` + `.agents/skills/aspnet-backend/SKILL.md` | Phiên riêng (đổi model/CLI linh hoạt theo thời điểm) | Ghi code đúng theo `PLAN.md` đã duyệt, sinh script SQL tách v2/v3 |
 | **Porter** | `.agents/skills/port-version/SKILL.md` + `.agents/skills/aspnet-backend/SKILL.md` | Phiên riêng (đổi model/CLI linh hoạt) | Chuyển thay đổi từ `<commit_id>` giữa `master2` ↔ `master3` an toàn |
 | **Tester / Reviewer** | `.agents/skills/verify-task/SKILL.md` | **Bắt buộc context mới**; **nên** khác model với Coder (nhất là task tiền / BHYT / cổng thông tin) | **Read + Test** — soi `git diff`, test UI trên Orca browser qua `orca` CLI, check SQL, đẩy Notion |
@@ -56,8 +57,8 @@ Không để 1 phiên AI vừa tự nghĩ, vừa tự code, vừa tự test. **N
 - **TUYỆT ĐỐI CẤM** AI chạy `git push` (dưới mọi hình thức, kể cả `push`, `push -u`, `push --force`). Việc push và tạo PR/MR **chỉ do con người thực hiện**.
 - **CẤM sửa code hoặc commit trực tiếp trên nhánh `master2` hoặc `master3`**.
 - **Người dùng tự tạo sẵn và checkout nhánh** tách từ `master2` / `master3` (ví dụ `Thinh_Ksk_M2` từ `master2`, `Thinh_Ksk_M3` từ `master3`). **AI KHÔNG tự tạo / đổi nhánh** (`git checkout`, `git switch`, `git branch`), chỉ **kiểm tra** trước khi sửa bất kỳ file nào:
-  1. `git branch --show-current` là `master2` hoặc `master3` → **DỪNG NGAY**.
-  2. Xác định nhánh gốc: so `git rev-list --count master2..HEAD` với `git rev-list --count master3..HEAD` (thiếu ref local thì dùng `origin/master2`, `origin/master3`) — số **nhỏ hơn rõ rệt** là nhánh gốc.
+  1. `git branch --show-current` là `<BASE_V2>` hoặc `<BASE_V3>` → **DỪNG NGAY**.
+  2. Xác định nhánh gốc: so `git rev-list --count <BASE_V2>..HEAD` với `git rev-list --count <BASE_V3>..HEAD` (thiếu ref local thì dùng `origin/<BASE_V2>`, `origin/<BASE_V3>`) — số **nhỏ hơn rõ rệt** là nhánh gốc.
   3. Nhánh gốc phải **khớp version đang làm** trong `PLAN.md`; hậu tố tên nhánh (`_M2` / `_M3`) nếu có phải khớp nhánh gốc.
   4. Bất kỳ điểm nào không khớp hoặc không rõ → **DỪNG báo người dùng**, không tự xử lý nhánh.
 
@@ -65,6 +66,7 @@ Không để 1 phiên AI vừa tự nghĩ, vừa tự code, vừa tự test. **N
 
 ## 4. Luật bắt buộc cho SQL Server (Chống ghi đè logic sto & sót script Prod)
 1. **Đủ 2 bản hiện tại (Dual Snapshot):** Nếu task sửa sto/view/function chạy trên cả 2 version, **BẮT BUỘC** phải đưa cho AI cả 2 bản đang chạy thật trên SSMS: `before_v2.sql` (từ `master2`) và `before_v3.sql` (từ `master3`). Thiếu 1 trong 2 → **Planner từ chối lên plan**.
+   - **Cách đưa snapshot:** tự lưu file vào `tasks/<task>/snapshots/`, **hoặc dán thẳng code sto vào chat Planner** (ghi `v3:` / `v2:` trước mỗi khối) → Planner tự lưu nguyên văn (`plan-task` Bước 1). Nhiều object trong 1 task → `before_v3_<TenObject>.sql`.
    - **Nguồn snapshot:** xuất từ **DB Production** (DB sẽ deploy thật). Nếu chỉ lấy được từ Dev → ghi rõ nguồn trong `PLAN.md` và bắt buộc đối chiếu lại với Prod ở bước Pre-Deploy (mục 6).
    - **Ngoại lệ sto/view/function MỚI** (chưa tồn tại trên DB): không có bản `before`, ghi rõ `Sto mới — không có before` trong `PLAN.md`; rollback bằng `DROP` trong `99_rollback_*.sql`.
 2. **So sánh (Diff) & Giữ nguyên logic riêng:** Planner bắt buộc đối chiếu `before_v2.sql` vs `before_v3.sql` để chỉ ra các đoạn logic đồng nghiệp đã thêm ở từng version; Coder chỉ sửa đúng đoạn cần thiết, **tuyệt đối không xóa/ghi đè logic cũ** trong sto.
@@ -83,13 +85,14 @@ Không để 1 phiên AI vừa tự nghĩ, vừa tự code, vừa tự test. **N
   - Tự động kiểm tra nhánh hiện tại tách từ `master2` hay `master3` (nếu không rõ → **dừng báo người dùng**, cấm ghi lộn version).
   - Lưu tách riêng vào `graphify-out/master2/` và `graphify-out/master3/` (tự ẩn `graphify-out/` trong `.git/info/exclude`, không đụng `.gitignore` công ty).
 - Dùng Graphify (`graphify-out/<master2|master3>/graph.json`, `GRAPH_REPORT.md`) ở bước **Planner** để tra nhanh call graph và blast radius.
+- **Tiết kiệm token:** dựng / cập nhật bản đồ bằng `map.ps1` (code-only, **không gọi model** — người dùng tự chạy, không cần AI). Tra bản đồ bằng `graphify query ... --budget 1500 --graph graphify-out/<ver>/graph.json` / `explain` / `affected`; **không đọc cả** `graph.json` / `GRAPH_REPORT.md`. Cấm `/graphify .`, `graphify label`, `graphify hook install` trừ khi người dùng yêu cầu rõ.
 - **Tra nhanh "endpoint này gọi sto nào / sto này được gọi ở đâu"**: skill `.agents/skills/ask-map/SKILL.md` (read-only, lưu bộ nhớ đệm `graphify-out/<ver>/ENDPOINT_MAP.md`, tự kiểm tra còn mới theo commit của file).
 - **Graphify có thể cũ** so với code vừa `git pull`: chỉ dùng để *định vị nhanh*, trước khi kết luận hoặc sửa **luôn mở file thật trên máy để xác nhận**.
 
 ---
 
 ## 6. Cổng duyệt của con người (Human Gates)
-- **Gate 1:** Người dùng duyệt `PLAN.md` → Coder mới được viết code. Người dùng nói *"duyệt"* trong phiên Planner → Planner ghi `Gate 1: Đã duyệt`, hỏi AI dùng cho Coder và mở phiên chat mới qua `orca agent launch` (`plan-task` Bước 5).
+- **Gate 1:** Người dùng duyệt `PLAN.md` → Coder mới được viết code. **Plan đổi giữa chừng** → skill `update-plan` (Rev mới, đánh dấu MỚI / SỬA / HỦY + HOÀN TÁC) → người dùng *"duyệt rev N"* → Planner báo phiên Coder làm tiếp. Người dùng nói *"duyệt"* trong phiên Planner → Planner ghi `Gate 1: Đã duyệt`, hỏi AI dùng cho Coder và mở phiên chat mới qua `orca agent launch` (`plan-task` Bước 5).
 - **Gate 2:** Người dùng duyệt `TEST_REPORT.md` + `DEPLOY_CHECKLIST.md` + `git diff` → mới merge & deploy. **Tester (AI) ghi Notion** trước Gate 2; người dùng commit xong báo *"đã commit"* → Tester cập nhật cột `Commit`. Người dùng chỉ tự đổi `Trạng thái` khi đã chạy Prod.
 - **Task chưa coi là DONE** nếu chưa có `DEPLOY_CHECKLIST.md` đã cross-check với `git diff` (và đồng bộ lên Online Docs qua MCP nếu đã cấu hình).
 - **Sau Gate 2** (task có port → sau khi nhánh port cũng PASS): chạy `retro-task` chấm điểm 1–5 *(khuyến khích, có thể bỏ qua)*.

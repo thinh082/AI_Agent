@@ -138,7 +138,7 @@ if (-not $Update) {
     $existing = @()
     if (Test-Path -LiteralPath $exclude) { $existing = Get-Content -LiteralPath $exclude | ForEach-Object { $_.Trim() } }
 
-    $wanted = 'AGENTS.md', 'AGENTS.md.bak-*', '.agents/', 'plans/', 'UI_PLAN/', 'tasks/', 'graphify-out/'
+    $wanted = 'AGENTS.md', 'AGENTS.md.bak-*', '.agents/', 'plans/', 'UI_PLAN/', 'tasks/', 'graphify-out/', '.graphifyignore'
     $missing = @($wanted | Where-Object { $existing -notcontains $_ })
     if ($missing.Count -eq 0) {
         Skip "Da co du cac muc can an"

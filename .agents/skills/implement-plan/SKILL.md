@@ -12,6 +12,7 @@ description: Quy trình chuẩn cho AI Coder thực thi đúng theo PLAN.md đã
 
 ### Bước 1 — Đọc kỹ `PLAN.md` & Kiểm tra nhánh Git (BẮT BUỘC)
 1. Đọc toàn bộ `PLAN.md` (đặc biệt: Phạm vi KHÔNG làm, Bảng Mapping UI↔DB, Diff v2/v3, Danh sách bước).
+   - Plan có nhiều **Rev** (mục 11) → làm theo **Rev mới nhất đã duyệt**. Nhận tin *"PLAN Rev N đã duyệt"* → đọc lại **toàn bộ** `PLAN.md`, làm các bước `[Rev N: MỚI / SỬA / HOÀN TÁC]`. Bước `HOÀN TÁC` là lý do hợp lệ để gỡ code đã viết ở Rev trước — chỉ gỡ đúng phần ghi trong bước đó.
 2. Chạy `git branch --show-current`:
    - Người dùng đã **tạo sẵn và checkout** nhánh (vd `Thinh_Ksk_M3`). Kiểm tra đủ 4 điểm theo `AGENTS.md` Luật 6: không phải `master2`/`master3`, nhánh gốc đúng, khớp version trong `PLAN.md`, hậu tố tên khớp. **AI không tự tạo / đổi nhánh**; sai hoặc không rõ → **DỪNG báo người dùng**.
 3. **KHÔNG đọc** `appsettings*.json` / `Web.config` / `.env` trừ khi người dùng cho phép rõ ràng. **KHÔNG BAO GIỜ chạy `git push`.**
@@ -53,6 +54,7 @@ Với mọi thay đổi DB của task, lưu vào `tasks/<task>/`:
 
 ### Bước 4 — Tạo nháp `DEPLOY_CHECKLIST.md`
 - Tạo `tasks/<task>/DEPLOY_CHECKLIST.md` theo mẫu `.agents/templates/DEPLOY_CHECKLIST.md`, liệt kê đủ tất cả script theo thứ tự 1 → 5.
+- **Tự kiểm tra cặp script trước khi bàn giao:** task áp dụng **v2 + v3** → mỗi file `0x_*_v3.sql` phải có file `0x_*_v2.sql` tương ứng (sinh trên nền `before_v2*.sql`), hoặc ghi rõ `Không có (lý do)` cho v2 trong `DEPLOY_CHECKLIST.md`. Thiếu → sinh bổ sung ngay, không bàn giao khi còn thiếu.
 
 ### Bước 5 — Kiểm tra với `dotnet watch run` & Bàn giao cho Tester
 - Tóm tắt ngắn gọn các file code đã sửa và các file SQL đã sinh, kèm các bước ngoài khuôn (nếu có `CODER_NOTES.md`).
